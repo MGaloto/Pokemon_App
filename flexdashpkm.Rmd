@@ -1,0 +1,154 @@
+---
+title: "Pokemon Analytics"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    logo: pikachu.jpg
+    navbar:
+       - { title: ".", href: "https://maxi-galo.shinyapps.io/macroargentina/", align: right}
+runtime: shiny
+---
+
+
+
+
+<style>
+
+.navbar {
+  background-color:#f0e51f;
+  border-color:black;
+  
+}
+
+.navbar-brand {
+color:black!important;
+}
+
+</style>  
+
+```{css}
+img{
+     max-width:48px;
+     max-height:48px;
+}
+```
+
+
+```{r setup, include=FALSE}
+
+library(flexdashboard)
+library(highcharter)
+library(viridis)
+library(ggplot2)
+library(tidyverse)
+library(shiny)
+library(dplyr)
+library(rlang)
+library(broom)
+
+
+df = read.csv('pokemon.csv')
+
+
+
+
+
+```
+
+
+
+
+```{r}
+# https://bookdown.org/koehlerj/qr_book/rcolorbrewer-and-barplots.html
+selectInput(inputId = 'colors',
+            label = tags$strong('Colores'),
+            choices = c('Spectral' = 'Spectral', 'Set2' = 'Set2', 'Paired' = 'Paired',  'Accent' = 'Accent'), 
+            selected = 'PuRd')
+
+```
+
+
+
+
+Column {data-width=50%}
+-----------------------------------------------------------------------
+
+### ***BarPlot*** {data-height=40%}
+
+
+
+
+
+```{r}
+
+library(RColorBrewer)
+```
+
+### ***BarPlot*** {data-height=60%}
+
+
+```{r}
+
+
+renderHighchart({
+
+  
+  group_type = df %>% group_by(type1) %>% tally()
+  
+  
+  bar_plots = group_type %>% 
+    arrange(desc(n)) %>% 
+    hchart('column', hcaes(x = type1, y = n),
+           showInLegend = F,
+           maxSize = "15%",
+           dataLabels = list(enabled = TRUE,
+                             format = '{point.y}')) %>% 
+    hc_colorAxis(stops = color_stops(18, rev(RColorBrewer::brewer.pal(18, input$colors))))  %>% 
+    hc_legend (enabled = FALSE) %>% 
+    hc_tooltip(shared = FALSE, borderColor = "black", valueDecimals=0) %>%  
+    hc_add_theme(hc_theme_google()) %>% 
+    hc_tooltip(pointFormat = '<b>Total: </b> {point.y} <br> ' ) %>% 
+    hc_title(text = 'Type Pokemon',
+             style = list(fontSize = '20px', fontWeight = 'bold')) %>% 
+    hc_subtitle(text = '<b>Bar Graph</b>',
+                style = list(fontSize = '16px', color = "black")) %>% 
+    hc_credits(enabled = TRUE, text = '@MGaloto',
+               style = list(fontSize = '16px', color = "black")) %>% 
+    hc_yAxis(labels = list(style = list(color = "black")),
+             tickColor = "black") %>% 
+    hc_xAxis(labels = list(style = list(color = "black")),
+             tickColor = "black") 
+  
+  bar_plots
+
+
+})
+  
+```
+
+Column {data-width=50%}
+-----------------------------------------------------------------------
+
+### ***BoxPlot Edades por Sector***  {data-height=35%}
+
+
+```{r}
+
+
+
+
+```
+
+
+
+### ***Pie Chart Genero***  {data-height=65%}
+
+
+```{r}
+
+
+
+
+```
+
