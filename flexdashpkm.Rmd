@@ -80,7 +80,7 @@ library(shiny)
 library(dplyr)
 library(rlang)
 library(broom)
-
+library(RColorBrewer)
 
 df = read.csv('pokemon.csv')
 
@@ -120,13 +120,28 @@ selectInput(inputId = 'colors',
 
 selectInput(inputId = 'xvalue',
             label = tags$strong('Variable X'),
-            choices = sort(names(df[,c(20, 36)])), selected = "attack")
+            choices = sort(names(df[,c(20, 23, 26, 29, 34, 35, 36, 39)])), selected = "attack")
 
 
 selectInput(inputId = 'yvalue',
             label = tags$strong('Variable Y'),
-            choices = sort(names(df[,c(26,39)])), selected = "defense")
+            choices = sort(names(df[,c(20, 23, 26,29, 34, 35, 36, 39)])), selected = "defense")
 
+
+radioButtons(
+  inputId = 'group',
+  label = tags$strong('Agrupar'),
+  choices = list('Type' = 'type1','Legendary' = 'is_legendary'), selected = 'type1',
+  inline = TRUE,
+  width = '400px')
+
+
+radioButtons(
+  inputId = 'reg',
+  label = tags$strong('Regresion'),
+  choices = list('Si' =  TRUE ,'No' = FALSE), selected = FALSE,
+  inline = TRUE,
+  width = '400px')
 
 
 radioButtons(
@@ -141,44 +156,10 @@ radioButtons(
 ```
 
 
+Row {data-height=85%}
+-------------------------------------
 
-
-Row {data-height=10%}
------------------------------------------------------------------------
-
-### ***BarPlot*** 
-
-
-
-```{r}
-
-library(RColorBrewer)
-```
-
-```{r}
-
-
-
-
-```
-
-
-### ***BarPlot*** 
-
-
-```{r}
-
-
-df %>% 
-  count(defense, type1) %>% 
-  hchart('areaspline', hcaes(x = 'defense', y = 'n', group = "type1"))
-
-```
-
-Row {data-height=60%}
------------------------------------------------------------------------
-
-### ***BoxPlot Edades por Sector***  {data-height=35%}
+### ver {data-width=52%}
 
 
 ```{r}
@@ -186,8 +167,10 @@ Row {data-height=60%}
 renderHighchart({
   
   
-  xvar <- input$xvalue
-  yvar <- input$yvalue
+  xvar     <- input$xvalue
+  yvar     <- input$yvalue
+  groupvar <- input$group
+
     
   if (input$colors == 'Spectral'){
     coloresinp = '#d9a15d'
@@ -223,19 +206,19 @@ renderHighchart({
   hc <-   df %>%
     hchart("scatter", hcaes(x = !!sym(xvar),
                             y = !!sym(yvar),
-                            name = is_legendary),
+                            name = name,
+                            group = !!sym(groupvar)),
            maxSize = "5%",
-           regression = TRUE,
+           regression = as.logical(input[['reg']]),
            regressionSettings = list(
                                 type = "polynomial",
                                 dashStyle = "ShortDash",
-                                color = "skyblue",
                                 order = as.numeric(input$orden),
                                 lineWidth = 5,
                                 name = "%eq | r2: %r",
-                                hideInLegend = FALSE)) %>%
-  
-    hc_colors(c(coloresinp)) %>%
+                                hideInLegend = TRUE)) %>%
+    hc_tooltip(pointFormat = "<b>Pokemon: {point.name} </b>") %>% 
+    #hc_colors(c(coloresinp, '#f041c4')) %>%
     hc_add_dependency("plugins/highcharts-regression.js") %>%
     hc_credits(enabled = TRUE, text = "Fuente: Indec",align = "right",verticalAlign = "bottom",
       style = list(color = "black", fontSize = '15px'),
@@ -251,9 +234,8 @@ renderHighchart({
 
 ```
 
+### ver {data-width=48%}
 
-
-### ***Pie Chart Genero***  {data-height=65%}
 
 
 ```{r}
@@ -298,5 +280,73 @@ renderHighchart({
 ```
 
 
-Grandes Rubros 2
-=========================================
+
+<!-- Grandes Rubros 2 -->
+<!-- ========================================= -->
+
+
+<!-- Row {data-height=15%} -->
+<!-- ------------------------------------- -->
+
+
+<!-- ```{r} -->
+<!-- # https://bookdown.org/koehlerj/qr_book/rcolorbrewer-and-barplots.html -->
+<!-- #  -->
+
+
+
+<!-- ``` -->
+
+
+
+
+
+<!-- Row {data-height=10%} -->
+<!-- ----------------------------------------------------------------------- -->
+
+<!-- ### ***BarPlot***  -->
+
+
+
+<!-- ```{r} -->
+
+
+
+
+<!-- ``` -->
+
+
+<!-- ### ***BarPlot***  -->
+
+
+<!-- ```{r} -->
+
+
+<!-- df %>%  -->
+<!--   count(defense, type1) %>%  -->
+<!--   hchart('areaspline', hcaes(x = 'defense', y = 'n', group = "type1")) -->
+
+<!-- ``` -->
+
+
+<!-- Row {data-height=60%} -->
+<!-- ----------------------------------------------------------------------- -->
+
+<!-- ### ***BoxPlot Edades por Sector***  {data-height=35%} -->
+
+
+<!-- ```{r} -->
+
+<!-- ``` -->
+
+
+
+<!-- ### ***Pie Chart Genero***  {data-height=65%} -->
+
+
+<!-- ```{r} -->
+
+
+
+<!-- ``` -->
+

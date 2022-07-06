@@ -1,0 +1,13 @@
+name: AppPkm
+title: AppPkm
+username:
+account: maxi-galo
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 6603133
+bundleId: 6076282
+url: https://maxi-galo.shinyapps.io/AppPkm/
+when: 1657142824.06229
+lastSyncTime: 1657142824.06229
+asMultiple: FALSE
+asStatic: FALSE
