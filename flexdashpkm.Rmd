@@ -2,8 +2,9 @@
 title: "Pokemon Analytics"
 output: 
   flexdashboard::flex_dashboard:
-    orientation: columns
     vertical_layout: fill
+    orientation : rows 
+    self_contained : TRUE
     logo: pikachu.jpg
     navbar:
        - { title: ".", href: "https://maxi-galo.shinyapps.io/macroargentina/", align: right}
@@ -25,14 +26,47 @@ runtime: shiny
 color:black!important;
 }
 
-</style>  
+.navbar-inverse .navbar-nav>li>a:focus {
+    color: black;
+    background-color: #f0e51f;
+}
 
-```{css}
+.navbar-inverse .navbar-nav>.active>a, .navbar-inverse .navbar-nav>.active>a:hover, .navbar-inverse .navbar-nav>.active>a:focus  {
+    color: black;
+    background-color: #f0e51f;
+}
+
+.navbar-inverse .navbar-nav>li>a {
+    color: black;
+    background-color: #f0e51f;
+}
+
 img{
      max-width:48px;
      max-height:48px;
 }
-```
+
+.selectize-input {
+    border: 1px solid #cfff02;
+    padding: 7px 13px;
+    display: inline-block;
+    width: 75%;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 17px;
+}
+
+</style>  
+
+
 
 
 ```{r setup, include=FALSE}
@@ -57,26 +91,62 @@ df = read.csv('pokemon.csv')
 ```
 
 
+Grandes Rubros 
+=========================================
+
+Row {data-height=15%}
+-------------------------------------
 
 
 ```{r}
 # https://bookdown.org/koehlerj/qr_book/rcolorbrewer-and-barplots.html
+# 
+
+
 selectInput(inputId = 'colors',
-            label = tags$strong('Colores'),
-            choices = c('Spectral' = 'Spectral', 'Set2' = 'Set2', 'Paired' = 'Paired',  'Accent' = 'Accent'), 
+            label = tags$strong('Themes'),
+            choices = c('Spectral',
+                        'Set2',
+                        'Paired',
+                        'Accent',
+                        'Oranges',
+                        'Reds',
+                        'Purples',
+                        'Dark2',
+                        'PRGn',
+                        'Set1'), 
             selected = 'PuRd')
+
+
+selectInput(inputId = 'xvalue',
+            label = tags$strong('Variable X'),
+            choices = sort(names(df[,c(20, 36)])), selected = "attack")
+
+
+selectInput(inputId = 'yvalue',
+            label = tags$strong('Variable Y'),
+            choices = sort(names(df[,c(26,39)])), selected = "defense")
+
+
+
+radioButtons(
+  inputId = 'orden',
+  label = tags$strong('Orden'),
+  choices = c(1,2,3), selected = 1,
+  inline = TRUE,
+  width = '400px')
+
+
 
 ```
 
 
 
 
-Column {data-width=50%}
+Row {data-height=10%}
 -----------------------------------------------------------------------
 
-### ***BarPlot*** {data-height=40%}
-
-
+### ***BarPlot*** 
 
 
 
@@ -85,7 +155,105 @@ Column {data-width=50%}
 library(RColorBrewer)
 ```
 
-### ***BarPlot*** {data-height=60%}
+```{r}
+
+
+
+
+```
+
+
+### ***BarPlot*** 
+
+
+```{r}
+
+
+df %>% 
+  count(defense, type1) %>% 
+  hchart('areaspline', hcaes(x = 'defense', y = 'n', group = "type1"))
+
+```
+
+Row {data-height=60%}
+-----------------------------------------------------------------------
+
+### ***BoxPlot Edades por Sector***  {data-height=35%}
+
+
+```{r}
+
+renderHighchart({
+  
+  
+  xvar <- input$xvalue
+  yvar <- input$yvalue
+    
+  if (input$colors == 'Spectral'){
+    coloresinp = '#d9a15d'
+  }
+  else if (input$colors =='Set2' ){
+    coloresinp = '#ba8a1a'
+  }
+  else if (input$colors =='Paired' ){
+    coloresinp = '#18ad4f'
+  }
+  else if (input$colors =='Accent' ){
+    coloresinp = '#9e1082'
+  }
+  else if (input$colors =='Oranges' ){
+    coloresinp = '#dea866'
+  }
+  else if (input$colors =='Reds' ){
+    coloresinp = '#cf303d'
+  }
+  else if (input$colors =='Purples' ){
+    coloresinp = '#5d1d85'
+  }
+  else if (input$colors =='Dark2' ){
+    coloresinp = 'black'
+  }
+  else if (input$colors =='PRGn' ){
+    coloresinp = '#615a63'
+  }
+  else{
+    coloresinp = 'black'
+  }
+    
+  hc <-   df %>%
+    hchart("scatter", hcaes(x = !!sym(xvar),
+                            y = !!sym(yvar),
+                            name = is_legendary),
+           maxSize = "5%",
+           regression = TRUE,
+           regressionSettings = list(
+                                type = "polynomial",
+                                dashStyle = "ShortDash",
+                                color = "skyblue",
+                                order = as.numeric(input$orden),
+                                lineWidth = 5,
+                                name = "%eq | r2: %r",
+                                hideInLegend = FALSE)) %>%
+  
+    hc_colors(c(coloresinp)) %>%
+    hc_add_dependency("plugins/highcharts-regression.js") %>%
+    hc_credits(enabled = TRUE, text = "Fuente: Indec",align = "right",verticalAlign = "bottom",
+      style = list(color = "black", fontSize = '15px'),
+      href = "https://www.indec.gob.ar/") %>%
+    hc_title(text = paste0('Scatter Plot - Linear Regression Order: ',input$orden),
+       style = list(fontSize = '20px', fontWeight = 'bold'))
+  
+  hc
+
+
+
+})
+
+```
+
+
+
+### ***Pie Chart Genero***  {data-height=65%}
 
 
 ```{r}
@@ -104,7 +272,7 @@ renderHighchart({
            maxSize = "15%",
            dataLabels = list(enabled = TRUE,
                              format = '{point.y}')) %>% 
-    hc_colorAxis(stops = color_stops(18, rev(RColorBrewer::brewer.pal(18, input$colors))))  %>% 
+    hc_colorAxis(stops = color_stops(18, rev(RColorBrewer::brewer.pal(8, input$colors))))  %>% 
     hc_legend (enabled = FALSE) %>% 
     hc_tooltip(shared = FALSE, borderColor = "black", valueDecimals=0) %>%  
     hc_add_theme(hc_theme_google()) %>% 
@@ -125,30 +293,10 @@ renderHighchart({
 
 })
   
-```
-
-Column {data-width=50%}
------------------------------------------------------------------------
-
-### ***BoxPlot Edades por Sector***  {data-height=35%}
-
-
-```{r}
-
-
 
 
 ```
 
 
-
-### ***Pie Chart Genero***  {data-height=65%}
-
-
-```{r}
-
-
-
-
-```
-
+Grandes Rubros 2
+=========================================
