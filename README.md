@@ -70,3 +70,11 @@ Regresion Lineal.
 </ui>
 
 # Gif
+
+<p align="center">
+  <img 
+    width="650"
+    height="450"
+    src="Img/pkm.gif"
+  >
+</p>

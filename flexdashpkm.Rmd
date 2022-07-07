@@ -1,5 +1,5 @@
 ---
-title: "Pokemon Analytics"
+title: "Pokemon Analytics" 
 output: 
   flexdashboard::flex_dashboard:
     vertical_layout: fill
@@ -7,7 +7,7 @@ output:
     self_contained : TRUE
     logo: pikachu.jpg
     navbar:
-       - { title: ".", href: "https://maxi-galo.shinyapps.io/macroargentina/", align: right}
+       - { title: "Kaggle", href: "https://www.kaggle.com/datasets/rounakbanik/pokemon", align: right}
 runtime: shiny
 ---
 
@@ -64,6 +64,14 @@ img{
     border-radius: 17px;
 }
 
+.navbar-brand {
+    float: left;
+    padding: 12.5px 38px;
+    font-size: 20px;
+    line-height: 22px;
+    height: 45px;
+}
+
 </style>  
 
 
@@ -81,8 +89,13 @@ library(dplyr)
 library(rlang)
 library(broom)
 library(RColorBrewer)
+library(readxl)
 
 df = read.csv('pokemon.csv')
+
+
+txt = read_excel('values.xlsx', col_names =  T)
+
 
 
 
@@ -90,8 +103,8 @@ df = read.csv('pokemon.csv')
 
 ```
 
-
-Grandes Rubros 
+ 
+Grandes Rubros  
 =========================================
 
 Row {data-height=15%}
@@ -100,22 +113,20 @@ Row {data-height=15%}
 
 ```{r}
 # https://bookdown.org/koehlerj/qr_book/rcolorbrewer-and-barplots.html
-# 
+# `r format(Sys.Date(), "%B %d, %Y")`
+
+radioButtons(
+  inputId = 'scatt',
+  label = tags$strong('Scatter Plots'),
+  choices = list('All' = 1,'Type' = 2), selected = 1,
+  inline = TRUE,
+  width = '400px')
 
 
-selectInput(inputId = 'colors',
-            label = tags$strong('Themes'),
-            choices = c('Spectral',
-                        'Set2',
-                        'Paired',
-                        'Accent',
-                        'Oranges',
-                        'Reds',
-                        'Purples',
-                        'Dark2',
-                        'PRGn',
-                        'Set1'), 
-            selected = 'PuRd')
+selectInput(inputId = 'typepkm',
+            label = tags$strong('Type'),
+            choices = sort(unique(df$type1)), selected = "fire")
+
 
 
 selectInput(inputId = 'xvalue',
@@ -152,6 +163,19 @@ radioButtons(
   width = '400px')
 
 
+selectInput(inputId = 'colors',
+            label = tags$strong('Themes'),
+            choices = c('Spectral',
+                        'Set2',
+                        'Paired',
+                        'Accent',
+                        'Oranges',
+                        'Reds',
+                        'Purples',
+                        'Dark2',
+                        'PRGn',
+                        'Set1'), 
+            selected = 'PuRd')
 
 ```
 
@@ -159,7 +183,7 @@ radioButtons(
 Row {data-height=85%}
 -------------------------------------
 
-### ver {data-width=52%}
+### Scatter Plot {data-width=52%}
 
 
 ```{r}
@@ -172,61 +196,125 @@ renderHighchart({
   groupvar <- input$group
 
     
-  if (input$colors == 'Spectral'){
-    coloresinp = '#d9a15d'
+  if (input$typepkm == 'grass'){
+    coloresinp = '#59d97f'
   }
-  else if (input$colors =='Set2' ){
-    coloresinp = '#ba8a1a'
+  else if (input$typepkm =='fire' ){
+    coloresinp = '#d4193c'
   }
-  else if (input$colors =='Paired' ){
-    coloresinp = '#18ad4f'
+  else if (input$typepkm =='water' ){
+    coloresinp = '#22a0bd'
   }
-  else if (input$colors =='Accent' ){
-    coloresinp = '#9e1082'
+  else if (input$typepkm =='bug' ){
+    coloresinp = '#00a650'
   }
-  else if (input$colors =='Oranges' ){
-    coloresinp = '#dea866'
+  else if (input$typepkm =='normal' ){
+    coloresinp = '#636b67'
   }
-  else if (input$colors =='Reds' ){
-    coloresinp = '#cf303d'
+  else if (input$typepkm =='poison' ){
+    coloresinp = '#320d54'
   }
-  else if (input$colors =='Purples' ){
-    coloresinp = '#5d1d85'
+  else if (input$typepkm =='electric' ){
+    coloresinp = '#c7d92b'
   }
-  else if (input$colors =='Dark2' ){
-    coloresinp = 'black'
+  else if (input$typepkm =='ground' ){
+    coloresinp = 'a16d1a'
   }
-  else if (input$colors =='PRGn' ){
-    coloresinp = '#615a63'
+  else if (input$typepkm =='fairy' ){
+    coloresinp = '#f252c8'
+  }
+  else if (input$typepkm =='fighting' ){
+    coloresinp = '#b09b5b'
+  }
+  else if (input$typepkm =='psychic' ){
+    coloresinp = '#a8209d'
+  }
+  else if (input$typepkm =='rock' ){
+    coloresinp = '#614707'
+  }
+  else if (input$typepkm =='ghost' ){
+    coloresinp = '#d265d6'
+  }
+  else if (input$typepkm =='ice' ){
+    coloresinp = '#1b8aa6'
+  }
+  else if (input$typepkm =='dragon' ){
+    coloresinp = '#21a3ff'
+  }
+  else if (input$typepkm =='dark' ){
+    coloresinp = '#1c1f1e'
+  }
+  else if (input$typepkm =='steel' ){
+    coloresinp = '#616966'
   }
   else{
-    coloresinp = 'black'
+    coloresinp = '#5caebd'
   }
-    
-  hc <-   df %>%
-    hchart("scatter", hcaes(x = !!sym(xvar),
-                            y = !!sym(yvar),
-                            name = name,
-                            group = !!sym(groupvar)),
-           maxSize = "5%",
-           regression = as.logical(input[['reg']]),
-           regressionSettings = list(
-                                type = "polynomial",
-                                dashStyle = "ShortDash",
-                                order = as.numeric(input$orden),
-                                lineWidth = 5,
-                                name = "%eq | r2: %r",
-                                hideInLegend = TRUE)) %>%
-    hc_tooltip(pointFormat = "<b>Pokemon: {point.name} </b>") %>% 
-    #hc_colors(c(coloresinp, '#f041c4')) %>%
-    hc_add_dependency("plugins/highcharts-regression.js") %>%
-    hc_credits(enabled = TRUE, text = "Fuente: Indec",align = "right",verticalAlign = "bottom",
-      style = list(color = "black", fontSize = '15px'),
-      href = "https://www.indec.gob.ar/") %>%
-    hc_title(text = paste0('Scatter Plot - Linear Regression Order: ',input$orden),
-       style = list(fontSize = '20px', fontWeight = 'bold'))
   
-  hc
+  if (input$scatt == 1){
+    
+    hc <-   df %>%
+      hchart("scatter", hcaes(x = !!sym(xvar),
+                              y = !!sym(yvar),
+                              name = name,
+                              group = !!sym(groupvar)),
+             maxSize = "5%",
+             regression = as.logical(input[['reg']]),
+             regressionSettings = list(
+                                  type = "polynomial",
+                                  dashStyle = "ShortDash",
+                                  order = as.numeric(input$orden),
+                                  lineWidth = 5,
+                                  name = "%eq | r2: %r",
+                                  hideInLegend = TRUE)) %>%
+      hc_tooltip(pointFormat = paste0("<b>Pokemon: {point.name} </b> <img src ='", colnames(txt) , "{point.pokedex_number}.png' width='100' height='120'>"),
+                 useHTML = T) %>%  
+      #hc_colors(c(coloresinp, '#f041c4')) %>%
+      hc_add_dependency("plugins/highcharts-regression.js") %>%
+      hc_add_theme(hc_theme_google()) %>% 
+      hc_credits(enabled = TRUE, text = "Fuente: Kaggle",align = "right",verticalAlign = "bottom",
+        style = list(color = "black", fontSize = '15px'),
+        href = "https://www.kaggle.com/datasets/rounakbanik/pokemon") %>%
+      hc_title(text = paste0('Scatter Plot - Linear Regression Order: ',input$orden),
+         style = list(fontSize = '20px', fontWeight = 'bold'))
+    
+    hc
+  
+  
+  }
+  else if (input$scatt == 2){
+
+      
+    hc <-   df %>% filter(type1 == input$typepkm) %>% 
+      hchart("scatter", hcaes(x = !!sym(xvar),
+                              y = !!sym(yvar),
+                              name = name,
+                              group = !!sym(groupvar)),
+             maxSize = "5%",
+             regression = as.logical(input[['reg']]),
+             regressionSettings = list(
+                                  type = "polynomial",
+                                  dashStyle = "ShortDash",
+                                  order = as.numeric(input$orden),
+                                  lineWidth = 5,
+                                  name = "%eq | r2: %r",
+                                  hideInLegend = TRUE)) %>%
+      hc_tooltip(pointFormat = paste0("<b>Pokemon: {point.name} </b> <img src ='", colnames(txt) , "{point.pokedex_number}.png' width='100' height='120'>"),
+                 useHTML = T) %>% 
+      hc_colors(c(coloresinp, '#f041c4')) %>%
+      hc_add_theme(hc_theme_google()) %>% 
+      hc_add_dependency("plugins/highcharts-regression.js") %>%
+      hc_credits(enabled = TRUE, text = "Fuente: Kaggle",align = "right",verticalAlign = "bottom",
+        style = list(color = "black", fontSize = '15px'),
+        href = "https://www.kaggle.com/datasets/rounakbanik/pokemon") %>%
+      hc_title(text = paste0('Scatter Plot - Linear Regression Order: ',input$orden),
+         style = list(fontSize = '20px', fontWeight = 'bold'))
+    
+    hc
+      
+    
+    
+  }
 
 
 
@@ -234,7 +322,7 @@ renderHighchart({
 
 ```
 
-### ver {data-width=48%}
+### Bar Plot {data-width=48%}
 
 
 
@@ -263,8 +351,9 @@ renderHighchart({
              style = list(fontSize = '20px', fontWeight = 'bold')) %>% 
     hc_subtitle(text = '<b>Bar Graph</b>',
                 style = list(fontSize = '16px', color = "black")) %>% 
-    hc_credits(enabled = TRUE, text = '@MGaloto',
-               style = list(fontSize = '16px', color = "black")) %>% 
+    hc_credits(enabled = TRUE, text = "Fuente: Kaggle",align = "right",verticalAlign = "bottom",
+        style = list(color = "black", fontSize = '15px'),
+        href = "https://www.kaggle.com/datasets/rounakbanik/pokemon") %>% 
     hc_yAxis(labels = list(style = list(color = "black")),
              tickColor = "black") %>% 
     hc_xAxis(labels = list(style = list(color = "black")),
@@ -349,4 +438,39 @@ renderHighchart({
 
 
 <!-- ``` -->
+
+
+```{r}
+# 
+# hc <-   df %>%  
+#       hchart("scatter", hcaes(x = defense,
+#                               y = attack,
+#                               name = name,
+#                               group = type1),
+#              maxSize = "5%",
+#              regression = FALSE,
+#              regressionSettings = list(
+#                                   type = "polynomial",
+#                                   dashStyle = "ShortDash",
+#                                   order = 1,
+#                                   lineWidth = 5,
+#                                   name = "%eq | r2: %r",
+#                                   hideInLegend = TRUE)) %>%
+#       hc_tooltip(pointFormat = paste0("<b>Pokemon: {point.name} </b> <img src ='", colnames(txt) , "{point.pokedex_number}.png' width='100' height='120'>")
+#                  useHTML = T) %>% 
+#       hc_colors(c('#f041c4', '#f041c4')) %>%
+#       hc_add_theme(hc_theme_google()) %>% 
+#       hc_add_dependency("plugins/highcharts-regression.js") %>%
+#       hc_credits(enabled = TRUE, text = "Fuente: Kaggle",align = "right",verticalAlign = "bottom",
+#         style = list(color = "black", fontSize = '15px'),
+#         href = "https://www.kaggle.com/datasets/rounakbanik/pokemon") %>%
+#       hc_title(text = paste0('Scatter Plot - Linear Regression Order: '),
+#          style = list(fontSize = '20px', fontWeight = 'bold'))
+#     
+# hc
+# 
+# 
+# paste0("<b>Pokemon: {point.name} </b> <img src ='", colnames(txt) , "{point.pokedex_number}.png' width='100' height='120'>")
+# 
+```
 
