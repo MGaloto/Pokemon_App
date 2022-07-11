@@ -1,5 +1,5 @@
 ---
-title: "Pokemon Analytics" 
+title: 'Pokemon Analytics'
 output: 
   flexdashboard::flex_dashboard:
     vertical_layout: fill
@@ -64,12 +64,27 @@ img{
     border-radius: 17px;
 }
 
+
+.navbar-brand {
+    color: transparent!important;
+    background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/International_Pok%C3%A9mon_logo.svg/640px-International_Pok%C3%A9mon_logo.svg.png);
+    background-position: center;
+    background-size: cover;
+    n-x: center;
+    background-size: cover;
+}
+
 .navbar-brand {
     float: left;
-    padding: 12.5px 38px;
-    font-size: 20px;
-    line-height: 22px;
-    height: 45px;
+    padding: 5.5px 0px;
+    font-size: 12px;
+    line-height: 16px;
+    height: 40px;
+}
+
+
+.navbar>.container-fluid .navbar-brand {
+    margin-left: 22px;
 }
 
 </style>  
@@ -96,7 +111,7 @@ df = read.csv('pokemon.csv')
 
 txt = read_excel('values.xlsx', col_names =  T)
 
-
+# https://dgranjon.shinyapps.io/shinyMons/_w_e81c075b/
 
 
 
@@ -104,7 +119,7 @@ txt = read_excel('values.xlsx', col_names =  T)
 ```
 
  
-Grandes Rubros  
+Analytics
 =========================================
 
 Row {data-height=15%}
@@ -119,6 +134,13 @@ radioButtons(
   inputId = 'scatt',
   label = tags$strong('Scatter Plots'),
   choices = list('All' = 1,'Type' = 2), selected = 1,
+  inline = TRUE,
+  width = '400px')
+
+radioButtons(
+  inputId = 'shiny',
+  label = tags$strong('Shiny'),
+  choices = list('Yes' = 1,'No' = 2), selected = 2,
   inline = TRUE,
   width = '400px')
 
@@ -194,6 +216,20 @@ renderHighchart({
   xvar     <- input$xvalue
   yvar     <- input$yvalue
   groupvar <- input$group
+  
+  
+  
+  
+   if (input$shiny == 1){
+    img_input = paste0("<b>Shiny: {point.name} </b> <img src ='", colnames(txt) , "shiny/{point.pokedex_number}.png' width='100' height='120'>")
+  }
+  else {
+    img_input = paste0("<b>Pokemon: {point.name} </b> <img src ='", colnames(txt) , "{point.pokedex_number}.png' width='100' height='120'>")
+  }
+  
+  
+  
+  
 
     
   if (input$typepkm == 'grass'){
@@ -267,7 +303,7 @@ renderHighchart({
                                   lineWidth = 5,
                                   name = "%eq | r2: %r",
                                   hideInLegend = TRUE)) %>%
-      hc_tooltip(pointFormat = paste0("<b>Pokemon: {point.name} </b> <img src ='", colnames(txt) , "{point.pokedex_number}.png' width='100' height='120'>"),
+      hc_tooltip(pointFormat = img_input,
                  useHTML = T) %>%  
       #hc_colors(c(coloresinp, '#f041c4')) %>%
       hc_add_dependency("plugins/highcharts-regression.js") %>%
@@ -299,7 +335,7 @@ renderHighchart({
                                   lineWidth = 5,
                                   name = "%eq | r2: %r",
                                   hideInLegend = TRUE)) %>%
-      hc_tooltip(pointFormat = paste0("<b>Pokemon: {point.name} </b> <img src ='", colnames(txt) , "{point.pokedex_number}.png' width='100' height='120'>"),
+      hc_tooltip(pointFormat = img_input,
                  useHTML = T) %>% 
       hc_colors(c(coloresinp, '#f041c4')) %>%
       hc_add_theme(hc_theme_google()) %>% 

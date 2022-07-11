@@ -5,9 +5,9 @@ account: maxi-galo
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 6603133
-bundleId: 6079039
+bundleId: 6082029
 url: https://maxi-galo.shinyapps.io/AppPkm/
-when: 1657213434.6993
-lastSyncTime: 1657213434.6993
+when: 1657294894.7172
+lastSyncTime: 1657294894.7172
 asMultiple: FALSE
 asStatic: FALSE
