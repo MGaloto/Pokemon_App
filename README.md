@@ -59,14 +59,6 @@ Regresion Lineal.
 </ui>
 
 
-# Estructura de la carpeta
-
-.
-├── README.md
-├── flexdashpkm.Rmd
-├── www
-    ├── styles.css
-
 
 # Estructura del dashboard
 
