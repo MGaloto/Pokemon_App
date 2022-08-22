@@ -24,24 +24,18 @@ Se busca analizar las cualidades de cada uno de ellos como tambien la diferencia
 # Incluye
 
 <ui>
-
 <li>
 Graficos Dinamicos y Estaticos.
 </li>
-
 <li>
 Interactividad con Shiny.
 </li>
-
 <li>
 Estadistica Descriptiva.
 </li>
-
-
 <li>
 Regresion Lineal.
 </li>
-
 </ui>
 
 
@@ -50,24 +44,47 @@ Regresion Lineal.
 # Paquetes de R
 
 <ui>
-
 <li>
 {tidyverse}
 </li>
-
 <li>
 {highcharter}
 </li>
-
 <li>
 {Shiny}
 </li>
-
 <li>
 {flexdashboard}
 </li>
-
 </ui>
+
+
+# Estructura de la carpeta
+
+.
+├── README.md
+├── flexdashpkm.Rmd
+├── www
+    ├── styles.css
+
+
+# Estructura del dashboard
+
+El dashboard incluye la flexibilidad y estructura de un Flexdashboard con la interactividad de Shiny.
+
+```r
+---
+title: 'Pokemon Analytics'
+output: 
+  flexdashboard::flex_dashboard:
+    logo: pikachu.jpg
+    orientation: columns
+    css: www/styles.css
+    navbar:
+       - { title: "Kaggle", href: "https://www.kaggle.com/datasets/rounakbanik/pokemon", align: right}
+runtime: shiny
+---
+```
 
 # Gif
 
@@ -78,3 +95,6 @@ Regresion Lineal.
     src="Img/pkm.gif"
   >
 </p>
+
+
+
