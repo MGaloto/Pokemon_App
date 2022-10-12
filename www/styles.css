@@ -1,39 +1,30 @@
 
-.navbar {
-  background-color:#f0e51f;
-    border-color:black;
-  
+img {
+  max-width: 69px;
+  max-height: 50px;
 }
 
-.navbar-brand {
-  color:black!important;
+.navbar-logo {
+  margin-top: 12px;
 }
 
-.navbar-inverse .navbar-nav>li>a:focus {
-  color: black;
-  background-color: #f0e51f;
+.navbar-logo img {
+  margin-right: 34px;
 }
 
-.navbar-inverse .navbar-nav>.active>a, .navbar-inverse .navbar-nav>.active>a:hover, .navbar-inverse .navbar-nav>.active>a:focus  {
-  color: black;
-  background-color: #f0e51f;
-}
-
-.navbar-inverse .navbar-nav>li>a {
-  color: black;
-  background-color: #f0e51f;
-}
-
-img{
-  max-width:48px;
-  max-height:48px;
+.irs--shiny .irs-bar {
+    top: 25px;
+    height: 7px;
+    border-top: 7px solid #c0f12d;
+    border-bottom: 2px solid #428bca;
+    background: #1d31bd;
 }
 
 .selectize-input {
-  border: 1px solid #cfff02;
-  padding: 7px 13px;
-  display: inline-block;
-  width: 75%;
+  border: 2px solid #cfff02;
+  padding: 8px 11px;
+  display: inline-table;
+  width: 87%;
   overflow: hidden;
   position: relative;
   z-index: 1;
@@ -44,38 +35,17 @@ img{
   box-shadow: none;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
-  border-radius: 17px;
+  border-radius: 25px;
 }
 
 
-.navbar-brand {
-  color: transparent!important;
-  background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/International_Pok%C3%A9mon_logo.svg/640px-International_Pok%C3%A9mon_logo.svg.png);
-  background-position: center;
-  background-size: cover;
-  n-x: center;
-  background-size: cover;
-}
-
-.navbar-brand {
-  float: left;
-  padding: 5.5px 0px;
-  font-size: 12px;
-  line-height: 16px;
-  height: 40px;
-}
-
-
-.navbar>.container-fluid .navbar-brand {
-  margin-left: 1px;
-}
 
 body {
   background: #ffffff;
     padding: 50px 0 0 8px;
   font-family: "Source Sans Pro",Calibri,Candara,Arial,sans-serif;
-  font-size: 15px;
-  line-height: 1.42857143;
+  font-size: 14px;
+  line-height: 2;
   color: #3522c5;
 }
 
@@ -93,12 +63,7 @@ body {
   overflow: initial;
 }
 
-.chart-title {
-  border-bottom: 6px solid #f2ff86;
-  font-size: 14px;
-  font-weight: 300;
-  padding: 6px 16px 4px;
-}
+
 
 .form-group {
     margin-bottom: 4px;
