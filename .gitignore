@@ -6,7 +6,6 @@
 *.png
 *.Rmd
 .Rproj.user
-flexdashpkm.Rmd
 flexdashpkmcopy.Rmd
 ver.Rmd
 pkmnote.Rmd
