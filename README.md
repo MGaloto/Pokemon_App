@@ -21,7 +21,24 @@ Se busca analizar las cualidades de cada uno de ellos como tambien la diferencia
 
 
 
-# Incluye
+
+
+
+### Contenido:
+
+- [**Introduccion**](https://github.com/MGaloto/Pokemon_App#introduccion)
+- [**Motivacion**](https://github.com/MGaloto/Pokemon_App#motivacion)
+- [**Librerias**](https://github.com/MGaloto/Pokemon_App#librerias)
+- [**Flexdash**](https://github.com/MGaloto/Pokemon_App#flexdash)
+- [**Gif**](https://github.com/MGaloto/Pokemon_App#gif)
+
+## Introduccion
+
+<div style="text-align: right" class="toc-box">
+ <a href="#top">Volver al Inicio</a>
+</div>
+
+### Incluye
 
 <ui>
 <li>
@@ -33,15 +50,21 @@ Interactividad con Shiny.
 <li>
 Estadistica Descriptiva.
 </li>
-<li>
-Regresion Lineal.
-</li>
 </ui>
 
+## Motivacion
+
+<div style="text-align: right" class="toc-box">
+ <a href="#top">Volver al Inicio</a>
+</div>
+...
 
 
+## Librerias
 
-# Paquetes de R
+<div style="text-align: right" class="toc-box">
+ <a href="#top">Volver al Inicio</a>
+</div>
 
 <ui>
 <li>
@@ -60,7 +83,11 @@ Regresion Lineal.
 
 
 
-# Estructura del dashboard
+## Flexdash
+
+<div style="text-align: right" class="toc-box">
+ <a href="#top">Volver al Inicio</a>
+</div>
 
 El dashboard incluye la flexibilidad y estructura de un Flexdashboard con la interactividad de Shiny.
 
@@ -78,7 +105,11 @@ runtime: shiny
 ---
 ```
 
-# Gif
+## Gif
+
+<div style="text-align: right" class="toc-box">
+ <a href="#top">Volver al Inicio</a>
+</div>
 
 <p align="center">
   <img 
