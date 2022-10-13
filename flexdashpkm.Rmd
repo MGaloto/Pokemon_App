@@ -94,7 +94,7 @@ library(flexdashboard)
 
 ```{r data, include=FALSE}
 
-df = read.csv('poke.csv')
+df = read.csv('data/poke.csv')
 
 txt = read_excel('values.xlsx', col_names =  T)
 
