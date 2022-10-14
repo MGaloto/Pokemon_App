@@ -3,7 +3,6 @@
 *.xlsx
 *.jpg
 *.png
-*.Rmd
 *.txt
 .Rproj.user
 flexdashpkmcopy.Rmd
