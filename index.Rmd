@@ -85,25 +85,18 @@ body {
 
 library(tidyverse)
 library(readxl)
-#suppressPackageStartupMessages(library(ggplot2))
 library(highcharter)
 library(flexdashboard)
 
-# update.packages("tidyselect")
-
+#suppressPackageStartupMessages(library(dplyr))
 # packageVersion('dplyr')
 
-
-# dplyr y tidyselect
 ```
 
 
 ```{r data, include=FALSE}
 
-df = read.csv('https://raw.githubusercontent.com/MGaloto/Pokemon_App/main/data/poke.csv')
-
-
-#txt = read_excel('values.xlsx', col_names =  T)
+df = read.csv('data/poke.csv')
 
 habilidades = sort(names(df[,c(20, 23, 26, 29, 34, 35, 36, 39)]))
 

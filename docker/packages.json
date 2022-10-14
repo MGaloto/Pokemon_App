@@ -13,20 +13,12 @@
             "version":"1.0.9"
         },
         {
-            "package": "tidyr",
-            "version":"1.2.0"
-        },
-        {
             "package": "highcharter",
             "version":"0.9.4"
         },
         {
             "package": "readr",
             "version":"2.1.2"
-        },
-        {
-            "package": "coronavirus",
-            "version":"0.3.32"
         },
         {
             "package": "lubridate",
@@ -43,10 +35,6 @@
         {
             "package": "markdown",
             "version":"1.1"
-        },
-        {
-            "package": "viridis",
-            "version":"0.6.2"
         },
         {
             "package": "tidyverse",
