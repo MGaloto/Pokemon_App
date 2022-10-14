@@ -4,6 +4,7 @@
 *.jpg
 *.png
 *.Rmd
+*.txt
 .Rproj.user
 flexdashpkmcopy.Rmd
 ver.Rmd
@@ -14,3 +15,5 @@ app2.R
 app.R
 modulo_1.R
 .Renviron
+csvs
+index_data
