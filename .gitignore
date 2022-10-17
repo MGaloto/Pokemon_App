@@ -1,8 +1,6 @@
 *.html
 *.xls
 *.xlsx
-*.jpg
-*.png
 *.txt
 .Rproj.user
 flexdashpkmcopy.Rmd
