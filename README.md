@@ -23,30 +23,29 @@
 - [**Motivacion**](https://github.com/MGaloto/Pokemon_App#motivacion)
 - [**Librerias**](https://github.com/MGaloto/Pokemon_App#librerias)
 - [**Flexdash**](https://github.com/MGaloto/Pokemon_App#flexdash)
-
+- [**Graficos**](https://github.com/MGaloto/Pokemon_App#graficos)
 
 ## Introduccion
-<br>
-</br>
+
 
 <div style="text-align: right" class="toc-box">
  <a href="#top">Volver al Inicio</a>
 </div>
 
+<br>
+</br>
 
 Proyecto sobre un aplicacion [flexdashboard](https://pkgs.rstudio.com/flexdashboard/) utilizando datos de todos los Pokemons. 
 
 Se busca analizar las cualidades de cada uno de ellos como tambien la diferencia entre los tipos de pokemon. (Rock, Fire, Grass..) mediante visualizaciones hechas en {highcharter}, usando la estructura de {flexdashboard} y la dinamica de {shiny}.
 
-Por ultimo, se va a utilizar [Docker](https://www.docker.com/) para crear una imagen en base a una existente sumandole las dependencias que necesita este proyecto y se va a compartir un tutorial de todos los pasos que se siguieron para crear la aplicacion y luego la imagen.
+Por ultimo, se va a utilizar [Docker](https://www.docker.com/) para crear una imagen en base a una existente sumandole las dependencias que necesita este proyecto.
 
 <p align="center">
   <img width="650" height="450" src="images/pkm.gif">
 </p>
 
-### Docker
 
-Docker es una herramienta de CI/CD que permite la implementación de código sin problemas desde los entornos de desarrollo hasta los de producción. Al crear virtualización a nivel de sistema operativo, puede empaquetar una aplicación y sus dependencias en un contenedor virtual. Docker puede ejecutarse de forma nativa en sistemas Linux y con Docker Desktop (o equivalente) en macOS y Windows OS.
 
 ### Incluye
 
@@ -55,15 +54,41 @@ Docker es una herramienta de CI/CD que permite la implementación de código sin
 - Estadistica Descriptiva. ✅ 
 
 ## Motivacion
-<br>
-</br>
+
 
 <div style="text-align: right" class="toc-box">
  <a href="#top">Volver al Inicio</a>
 </div>
-...
 
-Todo comenzo cuando me encontre con el Data Set de [Pokemon](https://www.kaggle.com/datasets/rounakbanik/pokemon) y pense en desarrollar un dashboard en {flexdashboard} usando la estetica de los graficos que provee {highcharter}. Me encontre con que queria relacionar los distintos tipos de Pokemons y ver sus cualidades, para ello le agregue graficos dinamicos en donde se pueden seleccionar distintos tipos de Pokemons y sus habilidades para poder ver similitudes y diferencias entre ellos:
+<br>
+</br>
+
+Todo comenzo cuando me encontre con el Data Set de [Pokemon](https://www.kaggle.com/datasets/rounakbanik/pokemon) y pense en desarrollar un dashboard en {flexdashboard} usando la estetica de los graficos que provee {highcharter}. 
+
+Me encontre con que queria relacionar los distintos tipos de Pokemons y ver sus cualidades, para ello le agregue graficos dinamicos en donde se pueden seleccionar distintos tipos de Pokemons y sus habilidades para poder ver similitudes y diferencias entre ellos.
+
+El Dashboard permite tener una idea general sobre los distintos tipos de Pokemons y los mas fuertes por tipo de habilidad. 
+
+Respecto a las tecnologias utilizadas tambien nos permite ver el potencial de las librerias para implementarlas en distintos proyectos de Ciencia de Datos.
+
+
+
+## Flexdash
+
+
+<div style="text-align: right" class="toc-box">
+ <a href="#top">Volver al Inicio</a>
+</div>
+
+<br>
+</br>
+
+El dashboard incluye la flexibilidad y estructura de un Flexdashboard con la interactividad de Shiny.
+
+El uso de Shiny con flexdashboard convierte un informe R Markdown estático en un documento interactivo. 
+
+Al agregar Shiny a un flexdashboard, se pueden crear tableros que permitan cambiar los parámetros subyacentes y ver los resultados de inmediato o que se actualicen de forma incremental a medida que cambian los datos subyacentes. 
+
 
 ```r
 ---
@@ -76,30 +101,26 @@ runtime: shiny_prerendered
 ---
 ```
 
-El uso de Shiny con flexdashboard convierte un informe R Markdown estático en un documento interactivo. 
 
-Al agregar Shiny a un flexdashboard, se pueden crear tableros que permitan cambiar los parámetros subyacentes y ver los resultados de inmediato o que se actualicen de forma incremental a medida que cambian los datos subyacentes. 
 
 
 ## Librerias
-<br>
-</br>
+
 
 <div style="text-align: right" class="toc-box">
  <a href="#top">Volver al Inicio</a>
 </div>
 
+<br>
+</br>
+
 La imagen contiene las librerias necesarias para ejecutar la App en un contenedor Docker y ademas poder probar distintas funcionalidades que tienen las librerias {shiny}, {flexdashboard} y {highcharter}. Tambien contiene librerias como {dplyr} y {tidyverse} para manipular la data.
 
-Las siguientes librerias son las que se van a configurar para compilar las capas de la imagen desde el archivo Dockerfile:
+Las siguientes librerias son las principales (No todas) que se van a configurar para compilar las capas de la imagen desde el archivo Dockerfile:
 
 ``` json
 {
   [
-    {
-        "package": "cpp11",
-        "version":"0.4.2"
-    },
     {
         "package": "flexdashboard",
         "version":"0.5.2"
@@ -121,14 +142,6 @@ Las siguientes librerias son las que se van a configurar para compilar las capas
         "version":"1.8.0"
     },
     {
-        "package": "languageserver",
-        "version":"0.3.13"
-    },
-    {
-        "package": "httpgd",
-        "version":"1.3.0"
-    },
-    {
         "package": "markdown",
         "version":"1.1"
     },
@@ -145,17 +158,68 @@ Las siguientes librerias son las que se van a configurar para compilar las capas
 ```
 
 
+## Graficos
 
-## Flexdash
-<br>
-</br>
 
 <div style="text-align: right" class="toc-box">
  <a href="#top">Volver al Inicio</a>
 </div>
 
-El dashboard incluye la flexibilidad y estructura de un Flexdashboard con la interactividad de Shiny.
+<br>
+</br>
+
+Las siguientes imagenes son algunos de los graficos que se utilizaron para el dashboard:
+
+### Scatter Plot
+
+Los gráficos de dispersión también son conocidos como gráficos XY y su función principal es la de mostrar la relación que existe entre los valores numéricos de diferentes series de datos sobre los ejes de coordenadas XY.
+
+El Dashboard permite cambiar el tipo de Pokemon como tambien cada uno de los ejes XY para elegir distintas habilidades y ver como se relacionan.
+
+<p align="center">
+  <img width="650" height="450" src="images/scatter.png">
+</p>
+
+
+### Bubble Plot
+
+El grafico de Burbujas permite observar los Pokemons (Solo los primeros 151 Pokemons) por tipo y tambien agruparlos por esta misma feature.
+
+<p align="center">
+  <img width="650" height="450" src="images/bubbleplot.png">
+</p>
+
+
+### Bar Plot
+
+Los graficos de barra que esta en el dashboard son dos:
+
+* Uno permite cambiar la edicion de los Pokemons y ver la cantidad por tipo de Pokemon.
+* Los otros barras en donde al seleccionar un tipo de Pokemon se pueden ver el top 5 por habilidad.
+
+
+<p align="center">
+  <img width="650" height="450" src="images/barplot.png">
+</p>
+
+
+### Box Plot
+
+El gráfico de caja es una forma de presentación estadística destinada, fundamentalmente, a resaltar aspectos de la distribución de las observaciones en una o más series de datos cuantitativos.
+
+En este grafico podemos visualizar medidas de tendencia central y compararlas con 2 tipos de Pokemons.
+
+
+<p align="center">
+  <img width="650" height="450" src="images/boxplot.png">
+</p>
 
 
 
+### Density Plot
 
+El gráfico de densidad muestra la distribución suavizada de los puntos a lo largo del eje numérico. Los picos del gráfico de densidad se encuentran en las ubicaciones donde existe la mayor concentración de puntos.
+
+<p align="center">
+  <img width="650" height="450" src="images/density.png">
+</p>
