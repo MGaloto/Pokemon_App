@@ -87,6 +87,7 @@ library(tidyverse)
 library(readxl)
 library(highcharter)
 library(flexdashboard)
+library(dplyr)
 
 #suppressPackageStartupMessages(library(dplyr))
 # packageVersion('dplyr')
@@ -96,10 +97,61 @@ library(flexdashboard)
 
 ```{r data, include=FALSE}
 
-df = read.csv('data/poke.csv')
+data = read.csv('data/poke.csv')
 
-habilidades = sort(names(df[,c(20, 23, 26, 29, 34, 35, 36, 39)]))
 
+colnames(pokemon)[colnames(pokemon) == "pokemon"] = "name"
+
+
+habilidades = sort(names(data[,c(20, 23, 26, 29, 34, 35, 36, 39)]))
+
+
+df = left_join(data, select(pokemon, c('name','image_url', 'type_1', 'type_2', 'type_1_color', 'type_2_color')), by ='name') %>%
+  mutate(type2 = ifelse(type2 == '', type1, type2))
+
+
+df$type_2_color = ifelse(is.na(df$type_2_color), df$type_1_color, df$type_2_color)
+
+
+pkmn_min <- df |> 
+  select(type_1, type_2, type_1_color) |>
+  mutate(type_1 = stringr::str_to_title(type_1)) |> 
+  mutate(type_2 = ifelse(is.na(type_2), type_1, paste(type_1, "-", type_2))) |>
+  mutate(val = 1)
+
+cols <- pkmn_min |> 
+  count(type_1, type_2, type_1_color, sort = TRUE) |> 
+  pull(type_1_color) |> 
+  unique()
+
+
+group = df %>% 
+  group_by(type1, type2) %>% 
+  count()
+  
+
+
+function_types = function(df) {
+  
+  lista_final = list()
+  for (i in 1:nrow(df)){
+    lista_final[[i]] = list(from = as.character(df[i,][1]) ,
+                          to = as.character(df[i,][2]) ,
+                          weight = as.numeric(df[i,][3] ))
+  }
+  
+  if (length(lista_final) == nrow(df)){
+    return(lista_final)
+  }
+  else{
+    return(NULL)
+  }
+  
+}
+
+types_dependency = function_types(group)
+
+ 
 ```
 
 
@@ -240,7 +292,7 @@ output$chart_scatter = renderHighchart({
   xvar     <- input$xvalue
   yvar     <- input$yvalue
     
-  df %>% filter(type1 == input$typepkm) %>% 
+  df %>% dplyr::filter(type1 == input$typepkm) %>% 
 
     hchart("scatter", hcaes(x = !!sym(xvar),
                             y = !!sym(yvar),
@@ -295,14 +347,18 @@ output$chart_column_1 = renderHighchart({
   typedos = input$typepkm
   
   df %>% 
-    filter(type1 == as.character(typedos)) %>% 
+    dplyr::filter(type1 == as.character(typedos)) %>% 
     arrange(desc(!!sym(yvardos))) %>%  
     slice(1:5) %>% 
+    
     hchart('column', hcaes(x = name, y = !!sym(yvardos)),
            showInLegend = F,
            maxSize = "15%",
            dataLabels = list(enabled = TRUE,
                              format = '{point.y}')) %>% 
+    highcharter::hc_plotOptions(
+      column = list(borderColor = 'black',
+                    borderRadius = 2)) %>% 
     hc_colors(as.character(reactColors())) %>%
     hc_legend (enabled = FALSE) %>% 
     hc_tooltip(pointFormat = reactImg(),
@@ -348,7 +404,7 @@ output$chart_column_2 = renderHighchart({
   typedos = input$typepkm
   
   df %>% 
-    filter(type1 == as.character(typedos)) %>% 
+    dplyr::filter(type1 == as.character(typedos)) %>% 
     arrange(desc(!!sym(xvardos))) %>%    
     slice(1:5) %>% 
     hchart('column', hcaes(x = name, y = !!sym(xvardos)),
@@ -356,6 +412,9 @@ output$chart_column_2 = renderHighchart({
            maxSize = "15%",
            dataLabels = list(enabled = TRUE,
                              format = '{point.y}')) %>% 
+    highcharter::hc_plotOptions(
+      column = list(borderColor = 'black',
+                    borderRadius = 2)) %>% 
     hc_colors(as.character(reactColorsTwo())) %>%
     hc_legend (enabled = FALSE) %>% 
     hc_tooltip(pointFormat = reactImg(),
@@ -478,29 +537,6 @@ reactColorsFour <-
 
 *Con estos gráficos se puede visualizar como se distribuyen los valores de cada una de las habilidades y compararlos por Type*
 
-Column {data-width=225}
--------------------------------------
-
-###
-
-```{r}
-
-```
-
-###
-
-```{r}
-
-```
-
-
-###
-
-```{r}
-
-```
-
-
 Column {data-width=750}
 -------------------------------------
     
@@ -554,16 +590,17 @@ output$chart_box = renderHighchart({
   
   highchart() %>%
     hc_xAxis(type = "category" ) %>%
-    hc_add_series_list(data_to_boxplot(df %>% filter(type1 %in% c(input$typepkm_1, input$typepkm_2)), 
+    hc_add_series_list(data_to_boxplot(df %>% dplyr::filter(type1 %in% c(input$typepkm_1, input$typepkm_2)), 
                          !!sym(input$xvalue_dos), 
                          type1, 
                          color = 'black',
                          name = as.character(input$xvalue_dos), 
                          add_outliers = T)) %>% 
     hc_add_series(
-      data = df %>% filter(type1 %in% c(input$typepkm_1, input$typepkm_2)) %>% mutate(color = ifelse(type1 == input$typepkm_1, reactColorsTree(), reactColorsFour())),
+      data = df %>% 
+        dplyr::filter(type1 %in% c(input$typepkm_1, input$typepkm_2)) %>% 
+        mutate(color = ifelse(type1 == input$typepkm_1, reactColorsTree(), reactColorsFour())),
       type = "scatter",
-      marker = list(radius = 2.5), alpha = 0.9,
       hcaes(x = type1, y = !!sym(input$xvalue_dos), color = color)) %>%
     
     hc_legend (enabled = FALSE) %>% 
@@ -579,6 +616,173 @@ output$chart_box = renderHighchart({
     hc_yAxis(labels = list(style = list(color = "black")),
              tickColor = "black",
              title = list(text = paste0('<b>',input$xvalue_dos,'</b>'))) 
+
+})
+
+```
+
+
+
+Column {data-width=225}
+-------------------------------------
+
+###
+
+*Promedios de Habilidades por Tipo de Pokemon:*
+
+```{r}
+
+htmlOutput("text_slide")
+
+```
+
+
+```{r , context="server"}
+
+
+output$text_slide <- renderText({
+    paste('Promedio de: ',  input$xvalue_dos)
+
+})
+```
+
+
+###
+
+```{r}
+
+highchartOutput("chart_type_1")
+
+```
+
+
+```{r , context="server"}
+
+
+
+get_color_type = function(data, type) {
+  
+  get_color_uno = data %>% 
+      dplyr::filter(type1 == 'fire') %>% 
+      select(type_1_color)
+  
+  get_color_dos = data %>% 
+      dplyr::filter(type1 == 'fire') %>% 
+      select(type_2_color)
+  
+  vector_colors = c( unique(get_color_dos$name) , unique(get_color_uno$name))
+  
+  return(vector_colors)
+  
+}
+
+  
+output$chart_type_1 = renderHighchart({
+
+  df_color = data.frame(
+        q = c(0.98),
+        c = c( unique(df[,'type_1_color'][df$type1 == input$typepkm_1])[!is.na(unique(df[,'type_1_color'][df$type1 == input$typepkm_1]))], 
+               unique(df[,'type_1_color'][df$type1 == input$typepkm_1])[!is.na(unique(df[,'type_1_color'][df$type1 == input$typepkm_1]))] ),
+        stringsAsFactors = FALSE
+      )
+  
+  value_1 = round((mean(df[,input$xvalue_dos][df$type1 == input$typepkm_2], na.rm = T) + mean(df[,input$xvalue_dos][df$type1 == input$typepkm_1], na.rm = T) ) / 2, 0)
+  
+  highchart() %>%
+    hc_chart(type = "solidgauge") %>%
+    hc_pane(
+      startAngle = -90,
+      endAngle = 90,
+      background = list(
+        outerRadius = '100%',
+        innerRadius = '60%',
+        shape = "arc"
+      )
+    ) %>%
+    hc_tooltip(enabled = FALSE) %>% 
+    hc_yAxis(
+      stops = list_parse2(df_color),
+      lineWidth = 0,
+      minorTickWidth = 0,
+      tickAmount = 2,
+      min = value_1 / 1.15,
+      max = value_1 * 1.15,
+      labels = list(y = 20, style = list(fontSize = "10px"))
+    ) %>%
+    hc_add_series(
+      data = round(mean(df[,input$xvalue_dos][df$type1 == input$typepkm_1], na.rm = T),0),
+  
+      dataLabels = list(
+        y = -50,
+        borderWidth = 0,
+        style = list(fontSize = "10px")
+      )
+    ) %>% 
+    hc_size(height = 500) %>% 
+    hc_subtitle(text = paste0('Mean ',input$xvalue_dos,' Type: ', input$typepkm_1),
+               style = list(fontSize = '13px', fontWeight = 'bold', color = "black")) 
+
+})
+```
+
+###
+
+```{r}
+
+
+highchartOutput("chart_type_2")
+
+```
+
+
+```{r , context="server"}
+
+output$chart_type_2 = renderHighchart({
+  
+
+  df_color = data.frame(
+        q = c(0.98, 0.99),
+        c = c( unique(df[,'type_1_color'][df$type1 == input$typepkm_2])[!is.na(unique(df[,'type_1_color'][df$type1 == input$typepkm_2]))], 
+               unique(df[,'type_1_color'][df$type1 == input$typepkm_2])[!is.na(unique(df[,'type_1_color'][df$type1 == input$typepkm_2]))] ),
+        stringsAsFactors = FALSE
+      )
+  
+  value_2  = round((mean(df[,input$xvalue_dos][df$type1 == input$typepkm_2], na.rm = T) + mean(df[,input$xvalue_dos][df$type1 == input$typepkm_1], na.rm = T) ) / 2, 0)
+
+  
+  highchart() %>%
+    hc_chart(type = "solidgauge") %>%
+    hc_pane(
+      startAngle = -90,
+      endAngle = 90,
+      background = list(
+        outerRadius = '100%',
+        innerRadius = '60%',
+        shape = "arc"
+      )
+    ) %>%
+    hc_tooltip(enabled = FALSE) %>% 
+    hc_yAxis(
+      stops = list_parse2(df_color),
+      lineWidth = 0,
+      minorTickWidth = 0,
+      tickAmount = 2,
+      min = value_2 / 1.15,
+      max = value_2 * 1.15,
+      labels = list(y = 20, style = list(fontSize = "10px"))
+    ) %>%
+    hc_add_series(
+      data = round(mean(df[,input$xvalue_dos][df$type1 == input$typepkm_2], na.rm = T),0),
+  
+      dataLabels = list(
+        y = -50,
+        borderWidth = 0,
+        style = list(fontSize = "10px")
+      )
+    ) %>% 
+    hc_size(height = 500) %>% 
+    hc_subtitle(text = paste0('Mean ',input$xvalue_dos,' Pokemon Type: ', input$typepkm_2),
+               style = list(fontSize = '13px', fontWeight = 'bold', color = "black")) 
 
 })
 
@@ -666,6 +870,10 @@ output$chart_column_3 = renderHighchart({
              maxSize = "15%",
              dataLabels = list(enabled = TRUE,
                                format = '{point.y}')) %>%
+      highcharter::hc_plotOptions(
+      column = list(borderColor = 'black',
+                    borderRadius = 1.2,
+                    borderWidth = 0.5)) %>% 
   
       hc_legend(enabled = FALSE) %>%
       hc_tooltip(shared = FALSE, borderColor = "black", valueDecimals =0) %>%
@@ -687,6 +895,132 @@ output$chart_column_3 = renderHighchart({
 })
 
 
+```
+
+
+
+Aggregate
+=========================================
+
+{.sidebar data-width=200}
+-------------------------------------
+
+*Los Pokemons pueden ser de mas de 1 tipo, es decir, un Pokemon tipo <b><span style="color:blue">Dragon</span></b> puede ser también tipo <b><span style="color:red">Fire</span></b>.*
+
+*El gráfico de Dependency Wheel nos muestra claramente estas relaciones entre tipos de Pokemons. Es un excelente gráfico para poder tomar dimensión de la combinación de los distintos tipos y la frecuencia con la que se observan estas relaciones.*
+
+
+Column {.tabset} 
+-----------------------------------------------------------
+
+
+### Dependency Wheel
+
+
+
+```{r}
+
+highchartOutput("chart_dependency")
+
+```
+
+
+```{r, context="server"}
+
+output$chart_dependency = renderHighchart({
+  
+  
+  highchart() %>%
+    hc_chart(type = 'dependencywheel') %>%
+    hc_add_series(
+      data = types_dependency,
+       dataLabels = list(
+        color = '#333',
+        textPath = list(
+          enabled = TRUE
+        )
+    ),
+    distance = 10,
+    size = '95%') %>%  
+
+    hc_title(text = paste0('Pokemon Dependency Wheel Plot'),
+       style = list(fontSize = '20px', fontWeight = 'bold')) %>% 
+    hc_credits(enabled = TRUE, 
+               text = "Fuente: Kaggle",
+               align = "right",
+               verticalAlign = "bottom",
+        style = list(color = "black", 
+                     fontSize = '8px'),
+        href = "https://www.kaggle.com/datasets/rounakbanik/pokemon") %>% 
+    hc_yAxis(labels = list(style = list(color = "black")),
+             tickColor = "black") %>% 
+    hc_xAxis(labels = list(style = list(color = "black")),
+             tickColor = "black") 
+
+})
+
+
+```
+
+
+
+### Treemap Plot
+
+```{r}
+
+highchartOutput("chart_treemap")
+
+```
+
+
+```{r, context="server"}
+
+
+output$chart_treemap = renderHighchart({
+  hchart(
+    data_to_hierarchical(pkmn_min, c(type_1, type_2), val, colors = cols),
+    type = "treemap",
+    levelIsConstant = FALSE,
+    allowDrillToNode = TRUE,
+    levels =   list(
+      list(
+        level = 1,
+        borderWidth = 0,
+        borderColor = "transparent",
+        dataLabels = list(
+          enabled = TRUE,
+          align = "left",
+          verticalAlign = "top",
+          style = list(
+            fontSize = "12px", 
+            textOutline = FALSE,
+            color = "white",
+            fontWeight = "normal"
+            )
+        )
+      ),
+      list(
+        level = 2,
+        borderWidth = 0,
+        borderColor = "transparent",
+        colorVariation = list(key = "brightness", to = 0.250),
+        dataLabels = list(enabled = FALSE),
+        style = list(
+          fontSize = "8px",
+          textOutline = FALSE, 
+          color = "white", 
+          fontWeight = "normal"
+          )
+      )
+    ),
+    tooltip = list(valueDecimals = FALSE)
+    ) |> 
+  
+    hc_title(
+      text = "Gotta Catch 'Em All!"
+      ) |> 
+    hc_size(height = 800) 
+})
 ```
 
 
@@ -774,7 +1108,7 @@ highchartOutput("chart_bubble")
 filter_function = function(data, grouptype, selectype) {
   if (grouptype == 1)
     return(data %>% slice(1:151) %>% 
-             filter(type1 == selectype)  %>% 
+             dplyr::filter(type1 == selectype)  %>% 
              select('hp','speed','attack','defense','type1','name', 'is_legendary', 'pokedex_number','color') %>%  
              mutate(total = rowSums(.[1:4])))
   else {
@@ -904,68 +1238,6 @@ El Dashboard usa los siguientes paquetes:
 
 -   [Linkedin](https://www.linkedin.com/in/maximilianogaloto)
 
-
-
-
-```{r}
-
-# highcharter::hchart(df %>% slice(1:151),
-#                       "packedbubble", 
-#                       highcharter::hcaes(name = name, 
-#                                          value = attack, 
-#                                          group = type1)) %>% 
-# 
-#     highcharter::hc_plotOptions(
-#       packedbubble = list(
-#         minSize= '10%',
-#             maxSize= '150%',
-#             zMin= 0,
-#             zMax= 1000,
-#         layoutAlgorithm = list(
-#           gravitationalConstant =  0.02,
-#           splitSeries =  TRUE, 
-#           seriesInteraction = TRUE,
-#           dragBetweenSeries = TRUE,
-#           parentNodeLimit = TRUE
-#         ),
-#         
-#         dataLabels = list(
-#           enabled = TRUE,
-#           format = '{point.name}',
-#           filter = list( 
-#                     property= 'y',
-#                     operator= '>',
-#                     value = 100),
-#           style = list( 
-#                     color= 'black',
-#                     textOutline= 'none',
-#                     fontWeight= 'normal'
-#           )
-#                  
-#         ),
-#           style = list(
-#             color = "black",
-#             textOutline = "none",
-#             fontWeight = "normal"
-#           )
-#         )
-#       ) %>%  
-# 
-#     #hc_colors(colors = c("#A6CEE399","#1F78B499","#B2DF8A99","#33A02C99",'red','red','red','red','red','red','red','red','red','blue')) %>%
-#     hc_title(text = paste0('Pokemon Firts Edition Bubble Chart'),
-#        style = list(fontSize = '20px', fontWeight = 'bold')) %>% 
-#     hc_credits(enabled = TRUE, 
-#                text = "Fuente: Kaggle",
-#                align = "right",
-#                verticalAlign = "bottom",
-#         style = list(color = "black", 
-#                      fontSize = '8px'),
-#         href = "https://www.kaggle.com/datasets/rounakbanik/pokemon") %>% 
-#     hc_yAxis(labels = list(style = list(color = "black")),
-#              tickColor = "black") %>% 
-#     hc_xAxis(labels = list(style = list(color = "black")),
-#              tickColor = "black") 
-```
 
 
 
