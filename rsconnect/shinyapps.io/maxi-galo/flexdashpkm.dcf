@@ -5,10 +5,10 @@ account: maxi-galo
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 7335154
-bundleId: 6412991
+bundleId: 6427235
 url: https://maxi-galo.shinyapps.io/flexdashpkm/
-when: 1666049944.14773
-lastSyncTime: 1666049944.14773
+when: 1666364655.15358
+lastSyncTime: 1666364655.15358
 asMultiple: FALSE
-asStatic: FALSE
-ignoredFiles: .github/workflows/dashboard_refresh.yml|.Renviron|_site.yml|bash/render_dashboard.sh|docker-compose.yml|docker pasos.txt|docker_command.txt|index.html|links.txt|README.md|www/styles.css|.local|docker|images|pruebas
+asStatic: TRUE
+ignoredFiles: .github/workflows/dashboard_refresh.yml|.Renviron|_site.yml|bash/render_dashboard.sh|docker-compose.yml|docker pasos.txt|docker_command.txt|index.html|links.txt|README.md|.local|docker|pruebas

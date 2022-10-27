@@ -184,6 +184,7 @@ radioButtons(
         choices = list('Yes' = 1,'No' = 2), selected = 2,
         inline = TRUE,
         width = '400px')
+
 ```
 
 
@@ -199,6 +200,7 @@ observe({
             updateSelectInput(session, "yvalue", 
                               choices = habilidades[!(habilidades %in% input$xvalue)], 
                               selected = isolate(input$yvalue) )})
+ 
 ```
 
 
@@ -273,6 +275,10 @@ reactColorsTwo <-
 })
 
 
+react_xvalue = reactive({input$xvalue})
+react_yvalue = reactive({input$yvalue})
+react_typevalue = reactive({input$typepkm})
+
 
 ```
 
@@ -286,16 +292,14 @@ highchartOutput("chart_scatter")
 ```{r, context="server"}
 
 
+
 output$chart_scatter = renderHighchart({
   
-  
-  xvar     <- input$xvalue
-  yvar     <- input$yvalue
     
-  df %>% dplyr::filter(type1 == input$typepkm) %>% 
+  df %>% dplyr::filter(type1 == react_typevalue()) %>% 
 
-    hchart("scatter", hcaes(x = !!sym(xvar),
-                            y = !!sym(yvar),
+    hchart("scatter", hcaes(x = !!sym(react_xvalue()),
+                            y = !!sym(react_yvalue()),
                             name = name,
                             group = is_legendary_char),
            
@@ -311,9 +315,9 @@ output$chart_scatter = renderHighchart({
       style = list(color = "black", fontSize = '8px'),
       href = "https://www.kaggle.com/datasets/rounakbanik/pokemon") %>%
     hc_title(text = paste0('Pokemon Type: ', as.character(input$typepkm)),
-             style = list(fontSize = '20px', fontWeight = 'bold', color = "black")) %>% 
-    hc_subtitle(text = paste0(as.character(xvar), ' Vs ', as.character(yvar)),
-             style = list(fontSize = '20px', fontWeight = 'bold', color = "black")) %>% 
+             style = list(fontSize = '16px', fontWeight = 'bold', color = "black")) %>% 
+    hc_subtitle(text = paste0(as.character(react_xvalue()), ' Vs ', as.character(react_yvalue())),
+             style = list(fontSize = '12px', fontWeight = 'bold', color = "black")) %>% 
     hc_yAxis(labels = list(style = list(fontSize = '10px' ,fontWeight = 'bold', color = "black")),
              tickColor = "black",
              title = list(text = paste0("<b>",input$yvalue,"</b>"))) %>% 
@@ -340,18 +344,13 @@ highchartOutput("chart_column_1")
 
 ```{r, context="server"}
 
-output$chart_column_1 = renderHighchart({
+get_bar_plot = function(data, typepkm, value, colors, img, size_title, size_subtitle) {
   
-
-  yvardos = input$yvalue
-  typedos = input$typepkm
-  
-  df %>% 
-    dplyr::filter(type1 == as.character(typedos)) %>% 
-    arrange(desc(!!sym(yvardos))) %>%  
+    data %>% 
+    dplyr::filter(type1 == as.character(typepkm)) %>% 
+    arrange(desc(!!sym(value))) %>% 
     slice(1:5) %>% 
-    
-    hchart('column', hcaes(x = name, y = !!sym(yvardos)),
+    highcharter::hchart('column', hcaes(x = name, y = !!sym(value)),
            showInLegend = F,
            maxSize = "15%",
            dataLabels = list(enabled = TRUE,
@@ -359,29 +358,34 @@ output$chart_column_1 = renderHighchart({
     highcharter::hc_plotOptions(
       column = list(borderColor = 'black',
                     borderRadius = 2)) %>% 
-    hc_colors(as.character(reactColors())) %>%
-    hc_legend (enabled = FALSE) %>% 
-    hc_tooltip(pointFormat = reactImg(),
+    highcharter::hc_colors(as.character(colors)) %>%
+    highcharter::hc_legend(enabled = FALSE) %>% 
+    highcharter::hc_tooltip(pointFormat = img,
                    useHTML = T) %>%   
-    hc_add_theme(hc_theme_google()) %>% 
-    hc_title(text = paste0('Pokemon Type: ', as.character(typedos)),
-       style = list(fontSize = '20px', fontWeight = 'bold')) %>% 
-    hc_subtitle(text = paste0('Top 5: ',as.character(yvardos)),
-                style = list(fontSize = '15px', fontWeight = 'bold')) %>% 
-    hc_credits(enabled = TRUE, 
+    highcharter::hc_add_theme(hc_theme_google()) %>% 
+    highcharter::hc_title(text = paste0('Pokemon Type: ', as.character(typepkm)),
+       style = list(fontSize = size_title, fontWeight = 'bold')) %>% 
+    highcharter::hc_subtitle(text = paste0('Top 5: ',as.character(value)),
+                style = list(fontSize = size_subtitle, fontWeight = 'bold')) %>% 
+    highcharter::hc_credits(enabled = TRUE, 
                text = "Fuente: Kaggle",
                align = "right",
                verticalAlign = "bottom",
-             style = list(color = "black", 
+               style = list(color = "black", 
                      fontSize = '8px'),
         href = "https://www.kaggle.com/datasets/rounakbanik/pokemon") %>% 
-    hc_yAxis(labels = list(style = list(color = "black")),
+    highcharter::hc_yAxis(labels = list(style = list(color = "black")),
              tickColor = "black") %>% 
-    hc_xAxis(labels = list(style = list(color = "black")),
+    highcharter::hc_xAxis(labels = list(style = list(color = "black")),
              tickColor = "black") 
+  
+}
 
+
+output$chart_column_1 = renderHighchart({
   
-  
+  get_bar_plot(df, react_typevalue(), react_yvalue(), reactColors(), reactImg(), size_title='16px',
+               size_subtitle='12px')
 })
 
 ```
@@ -398,43 +402,9 @@ highchartOutput("chart_column_2")
 ```{r , context="server"}
 
 output$chart_column_2 = renderHighchart({
-  
 
-  xvardos <- input$xvalue
-  typedos = input$typepkm
-  
-  df %>% 
-    dplyr::filter(type1 == as.character(typedos)) %>% 
-    arrange(desc(!!sym(xvardos))) %>%    
-    slice(1:5) %>% 
-    hchart('column', hcaes(x = name, y = !!sym(xvardos)),
-           showInLegend = F,
-           maxSize = "15%",
-           dataLabels = list(enabled = TRUE,
-                             format = '{point.y}')) %>% 
-    highcharter::hc_plotOptions(
-      column = list(borderColor = 'black',
-                    borderRadius = 2)) %>% 
-    hc_colors(as.character(reactColorsTwo())) %>%
-    hc_legend (enabled = FALSE) %>% 
-    hc_tooltip(pointFormat = reactImg(),
-                   useHTML = T) %>%   
-    hc_add_theme(hc_theme_google()) %>% 
-    hc_title(text = paste0('Pokemon Type: ', as.character(typedos)),
-       style = list(fontSize = '20px', fontWeight = 'bold')) %>% 
-    hc_subtitle(text = paste0('Top 5: ',as.character(xvardos)),
-                style = list(fontSize = '15px', fontWeight = 'bold'))  %>% 
-    hc_credits(enabled = TRUE, 
-               text = "Fuente: Kaggle",
-               align = "right",
-               verticalAlign = "bottom",
-        style = list(color = "black", 
-                     fontSize = '8px'),
-        href = "https://www.kaggle.com/datasets/rounakbanik/pokemon") %>% 
-    hc_yAxis(labels = list(style = list(color = "black")),
-             tickColor = "black") %>% 
-    hc_xAxis(labels = list(style = list(color = "black")),
-             tickColor = "black") 
+  get_bar_plot(df, react_typevalue(), react_xvalue(), reactColorsTwo(), reactImg(), size_title='16px',
+               size_subtitle='12px')
 
 })
 
@@ -454,7 +424,6 @@ selectInput(inputId = 'xvalue_dos',
             label = tags$strong('Variable'),
             choices = habilidades, selected = "attack")
 
-
 selectInput(inputId = 'typepkm_1',
             label = tags$strong('Type 1'),
             choices = sort(unique(df$type1)), selected = "fire")
@@ -462,6 +431,9 @@ selectInput(inputId = 'typepkm_1',
 selectInput(inputId = 'typepkm_2',
             label = tags$strong('Type 2'),
             choices = sort(unique(df$type1)), selected = "grass")
+
+
+
 ```
 
 
@@ -531,6 +503,15 @@ reactColorsFour <-
            stop('Error en reactColors'))
 })
 
+
+
+react_xvalue_dos = reactive({input$xvalue_dos})
+react_typevalue_1 = reactive({input$typepkm_1})
+react_typevalue_2 = reactive({input$typepkm_2})
+
+
+
+
 ```
 
 *Grafico de Densidad y Boxplot por habilidad y Type de Pokemon*
@@ -550,14 +531,16 @@ highchartOutput("chart_area")
 
 ```{r , context="server"}
 
+
+
 output$chart_area = renderHighchart({
 
-    hchart(density(df[,c(input$xvalue_dos)][df$type1 == input$typepkm_1]), type = 'area', color = reactColorsTree(), name = input$typepkm_1) %>% 
-      hc_add_series(density(df[,c(input$xvalue_dos)][df$type1 == input$typepkm_2]), type = "area",color = reactColorsFour(), name = input$typepkm_2) %>%
+    hchart(density(df[,c(react_xvalue_dos())][df$type1 == react_typevalue_1()]), type = 'area', color = reactColorsTree(), name = react_typevalue_1()) %>% 
+      hc_add_series(density(df[,c(input$xvalue_dos)][df$type1 == react_typevalue_2()]), type = "area",color = reactColorsFour(), name = react_typevalue_2()) %>%
       hc_add_theme(hc_theme_google()) %>% 
       hc_title(text = paste0('Density Plot ',input$xvalue_dos),
                style = list(fontSize = '20px', fontWeight = 'bold')) %>% 
-      hc_subtitle(text = paste0(as.character(input$typepkm_1), ' Vs ', as.character(input$typepkm_2)),
+      hc_subtitle(text = paste0(as.character(react_typevalue_1()), ' Vs ', as.character(react_typevalue_2())),
                 style = list(fontSize = '15px', fontWeight = 'bold')) %>% 
       hc_credits(enabled = TRUE, text = "Fuente: Kaggle",align = "right",verticalAlign = "bottom",
           style = list(color = "black", fontSize = '8px'),
@@ -588,34 +571,35 @@ highchartOutput("chart_box")
 
 output$chart_box = renderHighchart({
   
+
+  
   highchart() %>%
     hc_xAxis(type = "category" ) %>%
-    hc_add_series_list(data_to_boxplot(df %>% dplyr::filter(type1 %in% c(input$typepkm_1, input$typepkm_2)), 
-                         !!sym(input$xvalue_dos), 
+    hc_add_series_list(data_to_boxplot(df %>% dplyr::filter(type1 %in% c(react_typevalue_1(), react_typevalue_2())), 
+                         !!sym(react_xvalue_dos()), 
                          type1, 
                          color = 'black',
-                         name = as.character(input$xvalue_dos), 
+                         name = as.character(react_xvalue_dos()), 
                          add_outliers = T)) %>% 
     hc_add_series(
       data = df %>% 
-        dplyr::filter(type1 %in% c(input$typepkm_1, input$typepkm_2)) %>% 
-        mutate(color = ifelse(type1 == input$typepkm_1, reactColorsTree(), reactColorsFour())),
+        dplyr::filter(type1 %in% c(react_typevalue_1(), react_typevalue_2())) %>% 
+        mutate(color = ifelse(type1 == react_typevalue_1(), reactColorsTree(), reactColorsFour())),
       type = "scatter",
-      hcaes(x = type1, y = !!sym(input$xvalue_dos), color = color)) %>%
+      hcaes(x = type1, y = !!sym(react_xvalue_dos()), color = color)) %>%
     
     hc_legend (enabled = FALSE) %>% 
     hc_add_theme(hc_theme_google()) %>% 
-    hc_title(text = paste0('Box Plot ', input$xvalue_dos),
+    hc_title(text = paste0('Box Plot ', react_xvalue_dos()),
              style = list(fontSize = '20px', fontWeight = 'bold')) %>% 
-    hc_subtitle(text = paste0(as.character(input$typepkm_1), ' Vs ', as.character(input$typepkm_2)),
+    hc_subtitle(text = paste0(as.character(input$typepkm_1), ' Vs ', as.character(react_typevalue_2())),
                 style = list(fontSize = '15px', fontWeight = 'bold')) %>% 
-
     hc_credits(enabled = TRUE, text = "Fuente: Kaggle",align = "right",verticalAlign = "bottom",
         style = list(color = "black", fontSize = '8px'),
         href = "https://www.kaggle.com/datasets/rounakbanik/pokemon") %>% 
     hc_yAxis(labels = list(style = list(color = "black")),
              tickColor = "black",
-             title = list(text = paste0('<b>',input$xvalue_dos,'</b>'))) 
+             title = list(text = paste0('<b>',react_xvalue_dos(),'</b>'))) 
 
 })
 
@@ -639,9 +623,8 @@ htmlOutput("text_slide")
 
 ```{r , context="server"}
 
-
 output$text_slide <- renderText({
-    paste('Promedio de: ',  input$xvalue_dos)
+    paste('Promedio de: ',  react_xvalue_dos())
 
 })
 ```
@@ -676,18 +659,30 @@ get_color_type = function(data, type) {
   
 }
 
+
+
+
+mean_type_uno = reactive({round(mean(df[,react_xvalue_dos()][df$type1 == react_typevalue_1()], na.rm = T),0)})
+
+vector_type_uno = reactive({
+  c(unique(df[,'type_1_color'][df$type1 == react_typevalue_1()])[!is.na(unique(df[,'type_1_color'][df$type1 == react_typevalue_1()]))], 
+    unique(df[,'type_1_color'][df$type1 == react_typevalue_1()])[!is.na(unique(df[,'type_1_color'][df$type1 == react_typevalue_1()]))] )
+})
+
+value_min_max = reactive({
+  round((mean(df[,react_xvalue_dos()][df$type1 == react_typevalue_1()], na.rm = T) + 
+         mean(df[,react_xvalue_dos()][df$type1 == react_typevalue_2()], na.rm = T) ) / 2, 0)
+  
+})
   
 output$chart_type_1 = renderHighchart({
 
   df_color = data.frame(
         q = c(0.98),
-        c = c( unique(df[,'type_1_color'][df$type1 == input$typepkm_1])[!is.na(unique(df[,'type_1_color'][df$type1 == input$typepkm_1]))], 
-               unique(df[,'type_1_color'][df$type1 == input$typepkm_1])[!is.na(unique(df[,'type_1_color'][df$type1 == input$typepkm_1]))] ),
+        c = vector_type_uno(),
         stringsAsFactors = FALSE
       )
-  
-  value_1 = round((mean(df[,input$xvalue_dos][df$type1 == input$typepkm_2], na.rm = T) + mean(df[,input$xvalue_dos][df$type1 == input$typepkm_1], na.rm = T) ) / 2, 0)
-  
+
   highchart() %>%
     hc_chart(type = "solidgauge") %>%
     hc_pane(
@@ -705,12 +700,12 @@ output$chart_type_1 = renderHighchart({
       lineWidth = 0,
       minorTickWidth = 0,
       tickAmount = 2,
-      min = value_1 / 1.15,
-      max = value_1 * 1.15,
+      min = value_min_max() / 1.15,
+      max = value_min_max() * 1.15,
       labels = list(y = 20, style = list(fontSize = "10px"))
     ) %>%
     hc_add_series(
-      data = round(mean(df[,input$xvalue_dos][df$type1 == input$typepkm_1], na.rm = T),0),
+      data = mean_type_uno(),
   
       dataLabels = list(
         y = -50,
@@ -729,7 +724,6 @@ output$chart_type_1 = renderHighchart({
 
 ```{r}
 
-
 highchartOutput("chart_type_2")
 
 ```
@@ -740,16 +734,21 @@ highchartOutput("chart_type_2")
 output$chart_type_2 = renderHighchart({
   
 
+  
+  mean_type_dos = reactive({round(mean(df[,react_xvalue_dos()][df$type1 == react_typevalue_2()], na.rm = T),0)})
+  
+  vector_type_dos = reactive({
+    c(unique(df[,'type_1_color'][df$type1 == react_typevalue_2()])[!is.na(unique(df[,'type_1_color'][df$type1 == react_typevalue_2()]))], 
+      unique(df[,'type_1_color'][df$type1 == react_typevalue_2()])[!is.na(unique(df[,'type_1_color'][df$type1 == react_typevalue_2()]))] )
+  })
+
   df_color = data.frame(
         q = c(0.98, 0.99),
-        c = c( unique(df[,'type_1_color'][df$type1 == input$typepkm_2])[!is.na(unique(df[,'type_1_color'][df$type1 == input$typepkm_2]))], 
-               unique(df[,'type_1_color'][df$type1 == input$typepkm_2])[!is.na(unique(df[,'type_1_color'][df$type1 == input$typepkm_2]))] ),
+        c = vector_type_dos(),
         stringsAsFactors = FALSE
       )
-  
-  value_2  = round((mean(df[,input$xvalue_dos][df$type1 == input$typepkm_2], na.rm = T) + mean(df[,input$xvalue_dos][df$type1 == input$typepkm_1], na.rm = T) ) / 2, 0)
 
-  
+
   highchart() %>%
     hc_chart(type = "solidgauge") %>%
     hc_pane(
@@ -767,12 +766,12 @@ output$chart_type_2 = renderHighchart({
       lineWidth = 0,
       minorTickWidth = 0,
       tickAmount = 2,
-      min = value_2 / 1.15,
-      max = value_2 * 1.15,
+      min = value_min_max() / 1.15,
+      max = value_min_max() * 1.15,
       labels = list(y = 20, style = list(fontSize = "10px"))
     ) %>%
     hc_add_series(
-      data = round(mean(df[,input$xvalue_dos][df$type1 == input$typepkm_2], na.rm = T),0),
+      data = mean_type_dos(),
   
       dataLabels = list(
         y = -50,
@@ -1035,12 +1034,14 @@ Bubble Plot
 -------------------------------------
 
 ```{r}
+
 radioButtons(
   inputId = 'shinydos',
   label = tags$strong('Shiny'),
   choices = list('Yes' = 1,'No' = 2), selected = 1,
   inline = TRUE,
   width = '400px')
+
 ```
 
 *Los Datos que toma el Bubble Plot son de los Pokemons de la primer edición. Las Burbujas están separadas por Type.*
@@ -1048,6 +1049,7 @@ radioButtons(
 *La dinámica del Dashboard permite seleccionar por <b><span style="color:grey">*Group*</span></b> y por <b><span style="color:red">*Type*</span></b> de <b><span style="color:blue">*Pokemon*</span></b>.*
 
 ```{r}
+
 radioButtons(
   inputId = 'grouptype',
   label = tags$strong('Group'),
@@ -1067,6 +1069,8 @@ sliderInput(inputId = "decimal",
                   min = -0.10, max = 0.50,
                   value = 0.05, step = 0.01)
 
+
+
 ```
 
 
@@ -1082,6 +1086,9 @@ reactImgDos <- reactive({
   }
 })
 
+react_grouptype = reactive({input$grouptype})
+react_selectype = reactive({input$selectype})
+react_decimal = reactive({input$decimal})
 
 ```
 
@@ -1130,13 +1137,12 @@ color_function = function(data, grouptype, selectype) {
 }
 
 
-
 output$chart_bubble = renderHighchart({
   
-  highcharter::hchart(filter_function(df, input$grouptype, input$selectype),
+  highcharter::hchart(filter_function(df, react_grouptype(), react_selectype()),
                       "packedbubble", 
-                      highcharter::hcaes(name = name, 
-                                         value = total , 
+                      highcharter::hcaes(name  = name, 
+                                         value = total, 
                                          group = type1)) %>% 
     highcharter::hc_tooltip(
       useHTML = TRUE,
@@ -1146,11 +1152,11 @@ output$chart_bubble = renderHighchart({
       packedbubble = list(
         minSize = '10%',
         maxSize = '150%',
-        color = color_function(df, input$grouptype, input$selectype),
+        color = color_function(df, react_grouptype(), react_selectype()),
         zMin = 100,
         zMax = 2000,
         layoutAlgorithm = list(
-          gravitationalConstant =  input$decimal,
+          gravitationalConstant = react_decimal(),
           splitSeries =  TRUE, 
           seriesInteraction = TRUE,
           dragBetweenSeries = TRUE,

@@ -1,0 +1,195 @@
+---
+title: 'Dashboard'
+output: 
+  flexdashboard::flex_dashboard:
+    logo: www/logo.svg.png
+    theme : spacelab
+
+runtime: shiny_prerendered
+
+---
+
+
+  
+<style>
+
+img {
+  max-width: 69px;
+  max-height: 50px;
+}
+
+.navbar-logo {
+  margin-top: 6px;
+}
+
+.navbar-logo img {
+  margin-right: 34px;
+}
+
+.irs--shiny .irs-bar {
+    top: 25px;
+    height: 7px;
+    border-top: 7px solid #c0f12d;
+    border-bottom: 2px solid #428bca;
+    background: #1d31bd;
+}
+
+.selectize-input {
+  border: 2px solid #cfff02;
+  padding: 8px 11px;
+  display: inline-table;
+  width: 87%;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  box-shadow: none;
+  border-radius: 25px;
+}
+
+
+body {
+  background: #ffffff;
+    padding: 50px 0 0 8px;
+  font-family: "Source Sans Pro",Calibri,Candara,Arial,sans-serif;
+  font-size: 14px;
+  line-height: 2;
+  color: #3522c5;
+}
+
+.section.sidebar {
+  position: absolute;
+  top: 80px;
+  left: 9px;
+  right: -15px;
+  bottom: 0;
+  border-right: 10px solid #f2ff86;
+  background-color: white;
+  padding-left: 28px;
+  padding-right: 2px;
+  visibility: hidden;
+  overflow: initial;
+}
+
+.irs--shiny.irs-with-grid {
+    height: 61px;
+    width: 162px;
+}
+
+.form-group {
+    margin-bottom: 4px;
+}
+</style>
+
+```{r setup, include=FALSE}
+
+library(tidyverse)
+library(readxl)
+library(highcharter)
+library(flexdashboard)
+library(dplyr)
+
+#suppressPackageStartupMessages(library(dplyr))
+# packageVersion('dplyr')
+
+```
+
+
+```{r data, include=FALSE}
+
+data = read.csv('data/poke.csv')
+
+
+colnames(pokemon)[colnames(pokemon) == "pokemon"] = "name"
+
+
+habilidades = sort(names(data[,c(20, 23, 26, 29, 34, 35, 36, 39)]))
+
+
+df = left_join(data, select(pokemon, c('name','image_url', 'type_1', 'type_2', 'type_1_color', 'type_2_color')), by ='name') %>%
+  mutate(type2 = ifelse(type2 == '', type1, type2))
+
+
+df$type_2_color = ifelse(is.na(df$type_2_color), df$type_1_color, df$type_2_color)
+
+
+pkmn_min <- df |> 
+  select(type_1, type_2, type_1_color) |>
+  mutate(type_1 = stringr::str_to_title(type_1)) |> 
+  mutate(type_2 = ifelse(is.na(type_2), type_1, paste(type_1, "-", type_2))) |>
+  mutate(val = 1)
+
+cols <- pkmn_min |> 
+  count(type_1, type_2, type_1_color, sort = TRUE) |> 
+  pull(type_1_color) |> 
+  unique()
+
+
+group = df %>% 
+  group_by(type1, type2) %>% 
+  count()
+  
+
+
+function_types = function(df) {
+  
+  lista_final = list()
+  for (i in 1:nrow(df)){
+    lista_final[[i]] = list(from = as.character(df[i,][1]) ,
+                          to = as.character(df[i,][2]) ,
+                          weight = as.numeric(df[i,][3] ))
+  }
+  
+  if (length(lista_final) == nrow(df)){
+    return(lista_final)
+  }
+  else{
+    return(NULL)
+  }
+  
+}
+
+types_dependency = function_types(group)
+
+ 
+```
+
+
+
+
+```{r}
+
+highchart() %>%
+    hc_chart(type = 'dependencywheel') %>%
+    hc_add_series(
+      data = types_dependency,
+       dataLabels = list(
+        color = '#333',
+        textPath = list(
+          enabled = TRUE
+        )
+    ),
+    distance = 10,
+    size = '95%') %>%  
+
+    hc_title(text = paste0('Pokemon Dependency Wheel Plot'),
+       style = list(fontSize = '20px', fontWeight = 'bold')) %>% 
+    hc_credits(enabled = TRUE, 
+               text = "Fuente: Kaggle",
+               align = "right",
+               verticalAlign = "bottom",
+        style = list(color = "black", 
+                     fontSize = '12px'),
+        href = "https://www.kaggle.com/datasets/rounakbanik/pokemon") %>% 
+    hc_yAxis(labels = list(style = list(color = "black")),
+             tickColor = "black") %>% 
+    hc_xAxis(labels = list(style = list(color = "black")),
+             tickColor = "black") %>% 
+  highcharter::hc_caption(
+    text = "Dependency Wheel Plot using Pokemon Data", 
+    useHTML = TRUE
+    )
+
+
+```
+
