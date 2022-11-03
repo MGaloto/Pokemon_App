@@ -88,6 +88,7 @@ library(readxl)
 library(highcharter)
 library(flexdashboard)
 library(dplyr)
+library(shinyFeedback)
 
 #suppressPackageStartupMessages(library(dplyr))
 # packageVersion('dplyr')
@@ -149,6 +150,28 @@ function_types = function(df) {
   
 }
 
+
+selectInput_fun = function(input_id, input_label, input_choices, input_selected){
+  
+  selectInput(inputId = input_id,
+              label = input_label,
+              choices = input_choices, 
+              selected = input_selected)
+}
+
+
+radioButtons_fun = function(input_id, input_label, input_choices, input_selected) {
+  
+  radioButtons(
+        inputId = input_id,
+        label = input_label,
+        choices = input_choices, 
+        selected = input_selected,
+        inline = TRUE,
+        width = '400px')
+}
+
+
 types_dependency = function_types(group)
 
  
@@ -164,42 +187,54 @@ Analytics
 
 ```{r}
 
-selectInput(inputId = 'typepkm',
-            label = tags$strong('Type'),
-            choices = sort(unique(df$type1)), selected = "fire")
 
 
-selectInput(inputId = 'xvalue',
-            label = tags$strong('Variable X'),
-            choices = habilidades, selected = "attack")
 
+selectInput_fun('typepkm', tags$strong('Type'), sort(unique(df$type1)), "fire")
 
-selectInput(inputId = 'yvalue',
-            label = tags$strong('Variable Y'),
-            choices = habilidades, selected = "defense")
+selectInput_fun('xvalue', tags$strong('Variable X'), habilidades, "attack")
 
-radioButtons(
-        inputId = 'shiny',
-        label = tags$strong('Shiny'),
-        choices = list('Yes' = 1,'No' = 2), selected = 2,
-        inline = TRUE,
-        width = '400px')
+selectInput_fun('yvalue', tags$strong('Variable Y'), habilidades, "defense")
+
+radioButtons_fun('shiny', tags$strong('Shiny'), list('Yes' = 1,'No' = 2), 2)
+
 
 ```
+
+
+
+
+```{r, context="server"}
+
+observeEvent(req(input$shiny), {
+  if (input$shiny == 1){
+    showNotification("Pokemon Shiny Version Activate.", type = "message")
+    Sys.sleep(1)
+  }
+  })
+
+```
+
 
 
 ```{r, context="server"}
 
 observe({
-        if(!is.null(input$yvalue))
-            updateSelectInput(session, "xvalue", 
+        if(!is.null(input$yvalue)) {
+          updateSelectInput(session, "xvalue", 
                               choices = habilidades[!(habilidades %in% input$yvalue)], 
-                              selected = isolate(input$xvalue))})
+                              selected = isolate(input$xvalue))
+          
+        }
+})
+
 observe({
-        if(!is.null(input$xvalue))
-            updateSelectInput(session, "yvalue", 
+        if(!is.null(input$xvalue)) {
+          updateSelectInput(session, "yvalue", 
                               choices = habilidades[!(habilidades %in% input$xvalue)], 
-                              selected = isolate(input$yvalue) )})
+                              selected = isolate(input$yvalue))
+        }
+})
  
 ```
 
@@ -420,17 +455,14 @@ Types
 -------------------------------------
 
 ```{r}
-selectInput(inputId = 'xvalue_dos',
-            label = tags$strong('Variable'),
-            choices = habilidades, selected = "attack")
 
-selectInput(inputId = 'typepkm_1',
-            label = tags$strong('Type 1'),
-            choices = sort(unique(df$type1)), selected = "fire")
 
-selectInput(inputId = 'typepkm_2',
-            label = tags$strong('Type 2'),
-            choices = sort(unique(df$type1)), selected = "grass")
+selectInput_fun('xvalue_dos', tags$strong('Variable'), habilidades, "attack")
+
+selectInput_fun('typepkm_1',tags$strong('Type 1'), sort(unique(df$type1)), "electric")
+
+selectInput_fun('typepkm_2', tags$strong('Type 2'), sort(unique(df$type1)), "grass")
+
 
 
 
@@ -506,7 +538,9 @@ reactColorsFour <-
 
 
 react_xvalue_dos = reactive({input$xvalue_dos})
+
 react_typevalue_1 = reactive({input$typepkm_1})
+
 react_typevalue_2 = reactive({input$typepkm_2})
 
 
@@ -518,7 +552,7 @@ react_typevalue_2 = reactive({input$typepkm_2})
 
 *Con estos gráficos se puede visualizar como se distribuyen los valores de cada una de las habilidades y compararlos por Type*
 
-Column {data-width=750}
+Column {data-width=475}
 -------------------------------------
     
 ### {data-height=400}
@@ -607,10 +641,10 @@ output$chart_box = renderHighchart({
 
 
 
-Column {data-width=225}
+Column {data-width=300}
 -------------------------------------
 
-###
+### {data-height=200}
 
 *Promedios de Habilidades por Tipo de Pokemon:*
 
@@ -630,7 +664,7 @@ output$text_slide <- renderText({
 ```
 
 
-###
+### {data-height=400}
 
 ```{r}
 
@@ -641,49 +675,23 @@ highchartOutput("chart_type_1")
 
 ```{r , context="server"}
 
-
-
 get_color_type = function(data, type) {
-  
   get_color_uno = data %>% 
       dplyr::filter(type1 == 'fire') %>% 
       select(type_1_color)
   
   get_color_dos = data %>% 
       dplyr::filter(type1 == 'fire') %>% 
-      select(type_2_color)
-  
+      select(type_1_color)
   vector_colors = c( unique(get_color_dos$name) , unique(get_color_uno$name))
-  
   return(vector_colors)
   
 }
 
 
-
-
-mean_type_uno = reactive({round(mean(df[,react_xvalue_dos()][df$type1 == react_typevalue_1()], na.rm = T),0)})
-
-vector_type_uno = reactive({
-  c(unique(df[,'type_1_color'][df$type1 == react_typevalue_1()])[!is.na(unique(df[,'type_1_color'][df$type1 == react_typevalue_1()]))], 
-    unique(df[,'type_1_color'][df$type1 == react_typevalue_1()])[!is.na(unique(df[,'type_1_color'][df$type1 == react_typevalue_1()]))] )
-})
-
-value_min_max = reactive({
-  round((mean(df[,react_xvalue_dos()][df$type1 == react_typevalue_1()], na.rm = T) + 
-         mean(df[,react_xvalue_dos()][df$type1 == react_typevalue_2()], na.rm = T) ) / 2, 0)
+get_plot_solidgauge = function(data, value_min,  data_mean, inputx, inputype) {
   
-})
-  
-output$chart_type_1 = renderHighchart({
-
-  df_color = data.frame(
-        q = c(0.98),
-        c = vector_type_uno(),
-        stringsAsFactors = FALSE
-      )
-
-  highchart() %>%
+    highchart() %>%
     hc_chart(type = "solidgauge") %>%
     hc_pane(
       startAngle = -90,
@@ -696,31 +704,65 @@ output$chart_type_1 = renderHighchart({
     ) %>%
     hc_tooltip(enabled = FALSE) %>% 
     hc_yAxis(
-      stops = list_parse2(df_color),
+      stops = list_parse2(data),
       lineWidth = 0,
       minorTickWidth = 0,
       tickAmount = 2,
-      min = value_min_max() / 1.15,
-      max = value_min_max() * 1.15,
+      min = (value_min / 1.15) - 10,
+      max = (value_min * 1.15) + 10,
       labels = list(y = 20, style = list(fontSize = "10px"))
     ) %>%
     hc_add_series(
-      data = mean_type_uno(),
-  
+      data = data_mean,
       dataLabels = list(
         y = -50,
         borderWidth = 0,
         style = list(fontSize = "10px")
       )
     ) %>% 
-    hc_size(height = 500) %>% 
-    hc_subtitle(text = paste0('Mean ',input$xvalue_dos,' Type: ', input$typepkm_1),
+    hc_size(height = 550) %>% 
+    hc_subtitle(text = paste0('Mean ',inputx,' Type: ', inputype),
                style = list(fontSize = '13px', fontWeight = 'bold', color = "black")) 
+  
+}
+
+
+
+
+
+mean_type_uno = reactive({
+  round(mean(df[,react_xvalue_dos()][df$type1 == react_typevalue_1()], na.rm = T),0)
+  })
+
+
+value_min_max = reactive({
+  round((mean(df[,react_xvalue_dos()][df$type1 == react_typevalue_1()], na.rm = T) + 
+         mean(df[,react_xvalue_dos()][df$type1 == react_typevalue_2()], na.rm = T) ) / 2, 0)
+  })
+
+
+df_uno = reactive({
+  data.frame(
+        q = c(0.98),
+        c = c(unique(df[,'type_1_color'][df$type1 == react_typevalue_1()])[!is.na(unique(df[,'type_1_color'][df$type1 == react_typevalue_1()]))], 
+    unique(df[,'type_1_color'][df$type1 == react_typevalue_1()])[!is.na(unique(df[,'type_1_color'][df$type1 == react_typevalue_1()]))] ),
+        stringsAsFactors = FALSE)
+  })
+
+
+
+
+
+
+output$chart_type_1 = renderHighchart({
+  
+  get_plot_solidgauge(df_uno(), value_min_max(), mean_type_uno(), input$xvalue_dos, input$typepkm_1)
 
 })
+
 ```
 
-###
+### {data-height=400}
 
 ```{r}
 
@@ -731,57 +773,20 @@ highchartOutput("chart_type_2")
 
 ```{r , context="server"}
 
-output$chart_type_2 = renderHighchart({
   
-
+mean_type_dos = reactive({round(mean(df[,react_xvalue_dos()][df$type1 == react_typevalue_2()], na.rm = T),0)})
   
-  mean_type_dos = reactive({round(mean(df[,react_xvalue_dos()][df$type1 == react_typevalue_2()], na.rm = T),0)})
-  
-  vector_type_dos = reactive({
-    c(unique(df[,'type_1_color'][df$type1 == react_typevalue_2()])[!is.na(unique(df[,'type_1_color'][df$type1 == react_typevalue_2()]))], 
-      unique(df[,'type_1_color'][df$type1 == react_typevalue_2()])[!is.na(unique(df[,'type_1_color'][df$type1 == react_typevalue_2()]))] )
-  })
-
-  df_color = data.frame(
+df_dos = reactive({data.frame(
         q = c(0.98, 0.99),
-        c = vector_type_dos(),
+        c(unique(df[,'type_1_color'][df$type1 == react_typevalue_2()])[!is.na(unique(df[,'type_1_color'][df$type1 == react_typevalue_2()]))], 
+      unique(df[,'type_1_color'][df$type1 == react_typevalue_2()])[!is.na(unique(df[,'type_1_color'][df$type1 == react_typevalue_2()]))] ),
         stringsAsFactors = FALSE
-      )
+      )})
 
 
-  highchart() %>%
-    hc_chart(type = "solidgauge") %>%
-    hc_pane(
-      startAngle = -90,
-      endAngle = 90,
-      background = list(
-        outerRadius = '100%',
-        innerRadius = '60%',
-        shape = "arc"
-      )
-    ) %>%
-    hc_tooltip(enabled = FALSE) %>% 
-    hc_yAxis(
-      stops = list_parse2(df_color),
-      lineWidth = 0,
-      minorTickWidth = 0,
-      tickAmount = 2,
-      min = value_min_max() / 1.15,
-      max = value_min_max() * 1.15,
-      labels = list(y = 20, style = list(fontSize = "10px"))
-    ) %>%
-    hc_add_series(
-      data = mean_type_dos(),
-  
-      dataLabels = list(
-        y = -50,
-        borderWidth = 0,
-        style = list(fontSize = "10px")
-      )
-    ) %>% 
-    hc_size(height = 500) %>% 
-    hc_subtitle(text = paste0('Mean ',input$xvalue_dos,' Pokemon Type: ', input$typepkm_2),
-               style = list(fontSize = '13px', fontWeight = 'bold', color = "black")) 
+output$chart_type_2 = renderHighchart({
+
+  get_plot_solidgauge(df_dos(), value_min_max(),  mean_type_dos(), input$xvalue_dos, input$typepkm_2)
 
 })
 
@@ -801,11 +806,9 @@ Bar plot
 
 ```{r}
 
-selectInput(inputId = 'editions',
-            label = tags$strong('Editions'),
-            choices = c('All', 'First'),
-            selected = 'First')
 
+
+selectInput_fun('editions', tags$strong('Editions'), c('All', 'First'), "First")
 
 ```
 
@@ -832,6 +835,7 @@ output$text_bar_plot <- renderText({
     paste('Los Pokemons tipo <b><span style="color:whiteblue">Water</span></b>, <b><span style="color:grey">Normal</span></b> y <b><span style="color:violet">Poison</span></b> son los que se observan con mayor frecuencia en',  input$editions, 'Editions.')
   }
 })
+
 ```
 
 
@@ -901,7 +905,7 @@ output$chart_column_3 = renderHighchart({
 Aggregate
 =========================================
 
-{.sidebar data-width=200}
+{.sidebar data-width=225}
 -------------------------------------
 
 *Los Pokemons pueden ser de mas de 1 tipo, es decir, un Pokemon tipo <b><span style="color:blue">Dragon</span></b> puede ser también tipo <b><span style="color:red">Fire</span></b>.*
@@ -1018,7 +1022,7 @@ output$chart_treemap = renderHighchart({
     hc_title(
       text = "Gotta Catch 'Em All!"
       ) |> 
-    hc_size(height = 800) 
+    hc_size(height = 500) 
 })
 ```
 
@@ -1035,12 +1039,10 @@ Bubble Plot
 
 ```{r}
 
-radioButtons(
-  inputId = 'shinydos',
-  label = tags$strong('Shiny'),
-  choices = list('Yes' = 1,'No' = 2), selected = 1,
-  inline = TRUE,
-  width = '400px')
+
+radioButtons_fun('shinydos', tags$strong('Shiny'), list('Yes' = 1,'No' = 2), 2)
+
+
 
 ```
 
@@ -1048,19 +1050,29 @@ radioButtons(
 
 *La dinámica del Dashboard permite seleccionar por <b><span style="color:grey">*Group*</span></b> y por <b><span style="color:red">*Type*</span></b> de <b><span style="color:blue">*Pokemon*</span></b>.*
 
+
+
+
+```{r, context="server"}
+
+observeEvent(req(input$shinydos), {
+  if (input$shinydos == 1){
+    showNotification("Pokemon Shiny Version Activate.", type = "message")
+    Sys.sleep(1)
+  }
+  })
+
+```
+
+
+
 ```{r}
 
-radioButtons(
-  inputId = 'grouptype',
-  label = tags$strong('Group'),
-  choices = list('Yes' = 1,'No' = 2), selected = 2,
-  inline = TRUE,
-  width = '400px')
 
-selectInput(inputId = 'selectype',
-            label = tags$strong('Type'),
-            choices = sort(unique(df$type1[1:151])), selected = "fire")
+radioButtons_fun('grouptype', tags$strong('Group'), list('Yes' = 1,'No' = 2), 2)
 
+
+selectInput_fun('selectype', tags$strong('Type'), sort(unique(df$type1[1:151])), "fire")
 
 
 
@@ -1087,7 +1099,9 @@ reactImgDos <- reactive({
 })
 
 react_grouptype = reactive({input$grouptype})
+
 react_selectype = reactive({input$selectype})
+
 react_decimal = reactive({input$decimal})
 
 ```
@@ -1227,9 +1241,9 @@ El Dashboard incluye los siguientes graficos:
 -   Box Plot
 
 
-**Datos**
+**Fuente de Datos**
 
-[Pokemon Data](https://www.kaggle.com/datasets/rounakbanik/pokemon)
+-   Datos - [Pokemon Data](https://www.kaggle.com/datasets/rounakbanik/pokemon)
 
 **Packages**
 
@@ -1239,6 +1253,9 @@ El Dashboard usa los siguientes paquetes:
 -   Visualizacion - [highcharter](https://jkunst.com/highcharter/index.html)
 -   Data - [dplyr](https://dplyr.tidyverse.org/), [tidyverse](https://tidyr.tidyverse.org/)
 
+**Libros**
+
+-   Libro - [Mastering Shiny](https://mastering-shiny.org/action-feedback.html)
 
 **Contacto**
 
