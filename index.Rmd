@@ -1019,10 +1019,9 @@ output$chart_treemap = renderHighchart({
     tooltip = list(valueDecimals = FALSE)
     ) |> 
   
-    hc_title(
-      text = "Gotta Catch 'Em All!"
-      ) |> 
-    hc_size(height = 500) 
+    hc_title(text = paste0('Capturalos a Todos!'),
+       style = list(fontSize = '20px', fontWeight = 'bold'))   |> 
+    hc_size(height = 450) 
 })
 ```
 
@@ -1230,9 +1229,9 @@ About
 
 </div>
 
-La idea principal de este trabajo es utilizar la librería {flexdashboard} con la interactividad de {shiny} y la estetica de {highcharter} utilizando datos sobre las habilidades y distintos tipos de <span style="color:red">*Pokemons*</span> para poder visualizar la relacion y distintas metricas que los caracterizan.
+La idea principal de este trabajo es hacer una introducción a la librería {flexdashboard} con la interactividad de {shiny} y la estética de {highcharter} utilizando datos sobre las habilidades y distintos tipos de <span style="color:red">*Pokemons*</span> para poder visualizar la relación y distintas métricas que los caracterizan.
 
-El Dashboard incluye los siguientes graficos:
+El Dashboard incluye los siguientes gráficos:
 
 -   Scatter Plot
 -   Bar Plot
