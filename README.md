@@ -24,6 +24,7 @@
 - [**Librerias**](https://github.com/MGaloto/Pokemon_App#librerias)
 - [**Flexdash**](https://github.com/MGaloto/Pokemon_App#flexdash)
 - [**Graficos**](https://github.com/MGaloto/Pokemon_App#graficos)
+- [**Conclusion**](https://github.com/MGaloto/Pokemon_App#conclusion)
 
 ## Introduccion
 
@@ -176,18 +177,25 @@ Los gráficos de dispersión también son conocidos como gráficos XY y su funci
 
 El Dashboard permite cambiar el tipo de Pokemon como tambien cada uno de los ejes XY para elegir distintas habilidades y ver como se relacionan.
 
-<p align="center">
-  <img width="650" height="450" src="images/scatter.png">
-</p>
+
+<br>
+
+<img src="images/scatter.png" width="100%" />
+
+<br>
 
 
 ### Bubble Plot
 
 El grafico de Burbujas permite observar los Pokemons (Solo los primeros 151 Pokemons) por tipo y tambien agruparlos por esta misma feature.
 
-<p align="center">
-  <img width="650" height="450" src="images/bubbleplot.png">
-</p>
+
+
+<br>
+
+<img src="images/bubbleplot.png" width="100%" />
+
+<br>
 
 
 ### Bar Plot
@@ -198,9 +206,12 @@ Los graficos de barra que esta en el dashboard son dos:
 * Los otros barras en donde al seleccionar un tipo de Pokemon se pueden ver el top 5 por habilidad.
 
 
-<p align="center">
-  <img width="650" height="450" src="images/barplot.png">
-</p>
+<br>
+
+<img src="images/barplot.png" width="100%" />
+
+<br>
+
 
 
 ### Box Plot
@@ -210,9 +221,13 @@ El gráfico de caja es una forma de presentación estadística destinada, fundam
 En este grafico podemos visualizar medidas de tendencia central y compararlas con 2 tipos de Pokemons.
 
 
-<p align="center">
-  <img width="650" height="450" src="images/boxplot.png">
-</p>
+
+
+<br>
+
+<img src="images/boxplot.png" width="100%" />
+
+<br>
 
 
 
@@ -220,6 +235,29 @@ En este grafico podemos visualizar medidas de tendencia central y compararlas co
 
 El gráfico de densidad muestra la distribución suavizada de los puntos a lo largo del eje numérico. Los picos del gráfico de densidad se encuentran en las ubicaciones donde existe la mayor concentración de puntos.
 
-<p align="center">
-  <img width="650" height="450" src="images/density.png">
-</p>
+
+<br>
+
+<img src="images/density.png" width="100%" />
+
+<br>
+
+
+## Conclusion
+
+
+<div style="text-align: right" class="toc-box">
+ <a href="#top">Volver al Inicio</a>
+</div>
+
+<br>
+</br>
+
+El tablero tiene distintas métricas y gráficos para poder ver y analizar la diferencia entre distintos tipos de pokemons. 
+En esta primera versión se buscó principalmente un tablero con estética y diferentes funcionalidades para interactuar y sacar conclusiones sobre las visualizaciones. 
+
+Las próximas actualizaciones serán:
+
+- Un mejor servidor para tener una mejor experiencia de usuario.
+- Nueva sección para comparar habilidades entre dos pokemons.
+- Nuevas funcionalidades del universo de Shiny.

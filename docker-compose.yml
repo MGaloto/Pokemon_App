@@ -9,5 +9,5 @@ services:
         source: "C:/Users/maxig/Desktop/Carpetas/Trabajos en R/Pokemon"
         target: "/home/rstudio"
       - type: "bind"
-        source: "C:/Program Files/RStudio/bin"
+        source: "C:/Program Files/RStudio"
         target: "/home/rstudio/.config/rstudio"
