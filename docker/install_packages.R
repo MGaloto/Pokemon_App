@@ -1,35 +1,33 @@
-# ---- Description
-# This file installs the required R packages on the Docker image during the build time. 
-# The list of packages and their versions is set on the packages.json file
-# ---- Dependencies
-# To parse the json jq must be installed on the docker image. 
-# See: https://stedolan.github.io/jq/
-# ---- Code starts here 
-# Set the working directory
+# ---- Descripción
+# Este archivo instala los paquetes R necesarios en la imagen de Docker durante el tiempo de compilación.
+# La lista de paquetes y sus versiones se establece en el archivo packages.json
+
+# ---- Dependencias
+# Para analizar json, jq debe estar instalado en la imagen Docker
+# https://stedolan.github.io/jq/
+
+# Directorio de trabajo
 setwd("./packages")
-# Required the remotes package
+# Remotes
 install.packages("remotes", repos = "http://cran.rstudio.com/")
-#---- Load list of packages
-# Set the jq query
-jq_command <- 'jq -r ".packages[] |  [.package, .version] | @tsv" packages.json'
-# Debug mode
-#jq_command <- 'jq -r ".debug_mode[] |  [.package, .version] | @tsv" packages.json'
+#---- Packages
+#  jq query
+jq_command = 'jq -r ".packages[] |  [.package, .version] | @tsv" packages.json'
 
-# Parse the json file with the list of package
-raw <- system(command = jq_command, intern = TRUE)
+# Analice el archivo json con la lista de paquetes
+raw = system(command = jq_command, intern = TRUE)
 
-package_list <- lapply(raw, function(i){
-  x <- unlist(strsplit(x = i, split = "\t"))
+package_list = lapply(raw, function(i){
+  x = unlist(strsplit(x = i, split = "\t"))
   data.frame(package = x[1], version = x[2], stringsAsFactors = FALSE)
 })
-# Transform the list into a data.frame
-packages_df <- as.data.frame(t(matrix(unlist(package_list), nrow = 2)),
+# Transformar la lista en un dataframe
+packages_df = as.data.frame(t(matrix(unlist(package_list), nrow = 2)),
                          stringsAsFactors = FALSE)
-names(packages_df) <- c("package", "version")
-packages_df$success <- FALSE
+names(packages_df) = c("package", "version")
+packages_df$success = FALSE
 
-# ---- Install the packages
-
+# Instalar paquetes
 for(i in 1:nrow(packages_df)){
   if(!packages_df$package[i] %in% rownames(installed.packages()) ||
      (packages_df$package[i] %in% rownames(installed.packages()) &&
