@@ -21,6 +21,7 @@
 
 - [**Introduccion**](https://github.com/MGaloto/Pokemon_App#introduccion)
 - [**Motivacion**](https://github.com/MGaloto/Pokemon_App#motivacion)
+- [**Estructura del Repositorio**](https://github.com/MGaloto/Pokemon_App#estructura)
 - [**Librerias**](https://github.com/MGaloto/Pokemon_App#librerias)
 - [**Flexdash**](https://github.com/MGaloto/Pokemon_App#flexdash)
 - [**Graficos**](https://github.com/MGaloto/Pokemon_App#graficos)
@@ -68,9 +69,43 @@ Todo comenzo cuando me encontre con el Data Set de [Pokemon](https://www.kaggle.
 
 Me encontre con que queria relacionar los distintos tipos de Pokemons y ver sus cualidades, para ello le agregue graficos dinamicos en donde se pueden seleccionar distintos tipos de Pokemons y sus habilidades para poder ver similitudes y diferencias entre ellos.
 
-El Dashboard permite tener una idea general sobre los distintos tipos de Pokemons y los mas fuertes por tipo de habilidad. 
+El Dashboard permite tener una idea general sobre los distintos tipos de Pokemons que existen y comparar entre ellos sus fortalezas y debilidades por tipo. 
 
 Respecto a las tecnologias utilizadas tambien nos permite ver el potencial de las librerias para implementarlas en distintos proyectos de Ciencia de Datos.
+
+
+
+
+
+## Estructura
+
+
+<div style="text-align: right" class="toc-box">
+ <a href="#top">Volver al Inicio</a>
+</div>
+
+<br>
+</br>
+
+
+``` shell
+.
+├── docker-compose.yml
+├── .github
+├── data
+├── docker
+├── docs
+├── index.Rmd
+└── images
+```
+
+
+- `docker-compose.yml` se utiliza para setear volumes, imagen y puertos para ejecutar el trabajo.
+- `index.Rmd` contiene el trabajo principal.
+- `.github` contiene el WorkFlow.
+- `docker` contiene todos los archivos de configuración de imágenes de Docker (por ejemplo, Dockerfiley algunos archivos auxiliares)
+- `docs` se usa para almacenar los archivos del tablero renderizados.
+- Todas las imágenes del archivo README se almacenarán en `images`.
 
 
 
@@ -122,39 +157,61 @@ Las siguientes librerias son las principales (No todas) que se van a configurar 
 ``` json
 {
   [
-    {
-        "package": "flexdashboard",
-        "version":"0.5.2"
-    },
-    {
-        "package": "dplyr",
-        "version":"1.0.9"
-    },
-    {
-        "package": "highcharter",
-        "version":"0.9.4"
-    },
-    {
-        "package": "readr",
-        "version":"2.1.2"
-    },
-    {
-        "package": "lubridate",
-        "version":"1.8.0"
-    },
-    {
-        "package": "markdown",
-        "version":"1.1"
-    },
-    {
-        "package": "tidyverse",
-        "version":"1.3.1"
-    },
-    {
-        "package": "readxl",
-        "version":"1.4.0"
-    }
-  ]
+        {
+            "package": "cpp11",
+            "version":"0.4.2"
+        },
+        {
+            "package": "flexdashboard",
+            "version":"0.5.2"
+        },
+        {
+            "package": "dplyr",
+            "version":"1.0.9"
+        },
+        {
+            "package": "highcharter",
+            "version":"0.9.4"
+        },
+        {
+            "package": "readr",
+            "version":"2.1.2"
+        },
+        {
+            "package": "lubridate",
+            "version":"1.8.0"
+        },
+        {
+            "package": "languageserver",
+            "version":"0.3.13"
+        },
+        {
+            "package": "httpgd",
+            "version":"1.3.0"
+        },
+        {
+            "package": "shinyFeedback",
+            "version":"0.4.0"
+        },
+        {
+            "package": "markdown",
+            "version":"1.1"
+        },
+        {
+            "package": "tidyverse",
+            "version":"1.3.1"
+        },
+        {
+            "package": "readxl",
+            "version":"1.4.0"
+        },
+        {
+            "package": "shinyFeedback",
+            "version":"0.4.0"
+        }
+        
+       
+    ]
 }
 ```
 
