@@ -18,3 +18,4 @@ index_data
 bash
 rsconnect/
 .local
+.env
